@@ -228,7 +228,7 @@ public class GpioExtension extends DefaultClassManager {
 				catch (Exception e)
 				{
 					e.printStackTrace();
-					throw new ExtensionException( "An exception occurred in trying to read from analog pin " + pin + ".");
+					throw new ExtensionException( "An exception occurred in trying to read from analog pin " + pin + ":\n" + e.getMessage());
 				}
 
 
