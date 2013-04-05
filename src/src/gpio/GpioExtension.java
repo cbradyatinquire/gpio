@@ -222,6 +222,11 @@ public class GpioExtension extends DefaultClassManager {
 					{
 						contents += (char)contint;
 					}
+					if (contents.contains(":"))
+					{
+						int i = contents.indexOf(":");
+						contents = contents.substring(i + 1);
+					}
 					toreturn = Double.valueOf(contents);
 					fis.close();
 				}
