@@ -24,7 +24,7 @@ public class GpioExtension extends DefaultClassManager {
 	static final String pinDir = "/sys/devices/virtual/misc/gpio/pin/";
 	static final String modeDir= "/sys/devices/virtual/misc/gpio/mode/";
 	
-	static final String analogPinDir = "/proc";
+	static final String analogPinDir = "/proc/";
 	static final String pwmPinDir = "/sys/class/leds/";
 	
 	
