@@ -2,6 +2,10 @@ extensions [ gpio ]
 
 globals [ led-ison ]
 
+to startup
+  setup  
+end
+
 to setup
   ca 
   set led-ison false
@@ -88,10 +92,10 @@ NIL
 1
 
 BUTTON
-45
-167
-147
-200
+15
+162
+117
+195
 NIL
 get-pin-info
 NIL
@@ -105,10 +109,10 @@ NIL
 1
 
 BUTTON
-114
-398
-202
-442
+108
+311
+196
+355
 Digital Write
 gpio:digital-write which-pin the-value
 NIL
@@ -122,43 +126,60 @@ NIL
 1
 
 CHOOSER
-19
-305
-111
-350
+13
+218
+105
+263
 which-pin
 which-pin
-"gpio18"
-0
+"gpio0" "gpio1" "gpio2" "gpio3" "gpio4" "gpio5" "gpio6" "gpio7" "gpio8" "gpio9" "gpio10" "gpio11" "gpio12" "gpio13" "gpio14" "gpio15" "gpio16" "gpio17" "gpio18" "gpio19"
+8
 
 CHOOSER
-20
-397
-112
-442
+14
+310
+106
+355
 the-value
 the-value
 "HIGH" "LOW"
 0
 
 CHOOSER
-19
-354
-112
-399
+13
+267
+106
+312
 set-mode-to
 set-mode-to
 "output" "input"
 0
 
 BUTTON
-115
-355
-201
-397
+109
+268
+195
+310
 SET Pin Mode
 gpio:set-pin-mode which-pin set-mode-to
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+17
+373
+127
+406
+stress test
+ every .04 [ \n  gpio:digital-write which-pin \"HIGH\"\n  wait .02\n  gpio:digital-write which-pin \"LOW\"\n  ;wait .1\n]
+T
 1
 T
 OBSERVER
