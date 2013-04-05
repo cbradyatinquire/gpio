@@ -31,15 +31,15 @@ to get-pin-info
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+366
 10
-649
+805
 470
 16
 16
 13.0
 1
-10
+48
 1
 1
 1
@@ -111,8 +111,8 @@ NIL
 BUTTON
 108
 311
-196
-355
+214
+353
 Digital Write
 gpio:digital-write which-pin the-value
 NIL
@@ -153,13 +153,13 @@ CHOOSER
 set-mode-to
 set-mode-to
 "output" "input"
-0
+1
 
 BUTTON
-109
-268
-195
-310
+150
+264
+271
+307
 SET Pin Mode
 gpio:set-pin-mode which-pin set-mode-to
 NIL
@@ -179,6 +179,50 @@ BUTTON
 406
 stress test
  every .04 [ \n  gpio:digital-write which-pin \"HIGH\"\n  wait .02\n  gpio:digital-write which-pin \"LOW\"\n  ;wait .1\n]
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+186
+123
+324
+168
+which-analog
+which-analog
+"adc0" "adc1" "adc2" "adc3" "adc4" "adc5"
+4
+
+BUTTON
+186
+173
+322
+206
+Analog-Read
+every .1\n[\nlet r gpio:analog-read which-analog\n;show r\nask patch 6 0 [ set plabel r ]\n]\n
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+218
+312
+325
+354
+Digital Read
+every .5 \n[\nlet r gpio:digital-read which-pin\n;show r\nask patch 6 0 [ set plabel r ]\n]\n
 T
 1
 T
