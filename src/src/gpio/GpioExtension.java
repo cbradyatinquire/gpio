@@ -40,7 +40,7 @@ public class GpioExtension extends DefaultClassManager {
 	}
 	
 	static final String[] avalableAnalogs = {"adc0", "adc1", "adc2", "adc3", "adc4", "adc5" };
-	static final String[] availablePWMs = {"pwm0", "pwm1", "pwm2", "pwm3", "pwm4", "pwm5"};
+	static final String[] availablePWMs = {"pwm0/brightness", "pwm1/brightness", "pwm2/brightness", "pwm3/brightness", "pwm4/brightness", "pwm5/brightness"};
 	static final ArrayList<String> analogPinList = new ArrayList<String>();
 	static final ArrayList<String> pwmPinList = new ArrayList<String>();
 	static {
