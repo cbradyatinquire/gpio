@@ -133,7 +133,7 @@ CHOOSER
 which-pin
 which-pin
 "gpio0" "gpio1" "gpio2" "gpio3" "gpio4" "gpio5" "gpio6" "gpio7" "gpio8" "gpio9" "gpio10" "gpio11" "gpio12" "gpio13" "gpio14" "gpio15" "gpio16" "gpio17" "gpio18" "gpio19"
-8
+6
 
 CHOOSER
 18
@@ -143,7 +143,7 @@ CHOOSER
 the-value
 the-value
 "HIGH" "LOW"
-0
+1
 
 CHOOSER
 17
@@ -241,7 +241,7 @@ CHOOSER
 which-pwm
 which-pwm
 "pwm0/brightness" "pwm1/brightness" "pwm2/brightness" "pwm3/brightness" "pwm4/brightness" "pwm5/brightness"
-0
+2
 
 SLIDER
 122
@@ -252,7 +252,7 @@ brightness
 brightness
 0
 255
-50
+255
 1
 1
 NIL
