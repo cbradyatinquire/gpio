@@ -109,10 +109,10 @@ NIL
 1
 
 BUTTON
-108
-311
-214
-353
+112
+289
+218
+331
 Digital Write
 gpio:digital-write which-pin the-value
 NIL
@@ -126,40 +126,40 @@ NIL
 1
 
 CHOOSER
-13
-218
-105
-263
+17
+196
+109
+241
 which-pin
 which-pin
 "gpio0" "gpio1" "gpio2" "gpio3" "gpio4" "gpio5" "gpio6" "gpio7" "gpio8" "gpio9" "gpio10" "gpio11" "gpio12" "gpio13" "gpio14" "gpio15" "gpio16" "gpio17" "gpio18" "gpio19"
 8
 
 CHOOSER
-14
-310
-106
-355
+18
+288
+110
+333
 the-value
 the-value
 "HIGH" "LOW"
 0
 
 CHOOSER
-13
-267
-106
-312
+17
+245
+110
+290
 set-mode-to
 set-mode-to
 "output" "input"
-1
+0
 
 BUTTON
-150
-264
-271
-307
+154
+242
+275
+285
 SET Pin Mode
 gpio:set-pin-mode which-pin set-mode-to
 NIL
@@ -173,10 +173,10 @@ NIL
 1
 
 BUTTON
-17
-373
-127
-406
+16
+338
+126
+371
 stress test
  every .04 [ \n  gpio:digital-write which-pin \"HIGH\"\n  wait .02\n  gpio:digital-write which-pin \"LOW\"\n  ;wait .1\n]
 T
@@ -205,7 +205,7 @@ BUTTON
 322
 206
 Analog-Read
-every .1\n[\nlet r gpio:analog-read which-analog\n;show r\nask patch 6 0 [ set plabel r ]\n]\n
+every .2\n[\nlet read gpio:analog-read which-analog\nask patch 10 0 [ set plabel read ]\nlet r  round ( read / 16 )\nif (r >= 0 and r <= 255) [\nask patches with [ pxcor < 0 ] [ set pcolor (list (255 - r) 10 r) ] ]\n]\n
 T
 1
 T
@@ -217,13 +217,55 @@ NIL
 1
 
 BUTTON
-218
-312
-325
-354
+222
+290
+329
+332
 Digital Read
 every .5 \n[\nlet r gpio:digital-read which-pin\n;show r\nask patch 6 0 [ set plabel r ]\n]\n
 T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+122
+384
+262
+429
+which-pwm
+which-pwm
+"pwm0/brightness" "pwm1/brightness" "pwm2/brightness" "pwm3/brightness" "pwm4/brightness" "pwm5/brightness"
+0
+
+SLIDER
+122
+430
+262
+463
+brightness
+brightness
+0
+255
+50
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+266
+383
+347
+463
+PWM Write
+gpio:pwm-write which-pwm (word brightness)
+NIL
 1
 T
 OBSERVER
