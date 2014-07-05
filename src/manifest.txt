@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Extension-Name: gpio
-Class-Manager: gpio.GpioExtension
-NetLogo-Extension-API-Version: 5.0
