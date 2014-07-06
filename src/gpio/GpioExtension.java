@@ -134,6 +134,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	public static class TestPWMPrimitive extends DefaultReporter {
 
+		private static final String TESTPIN = "pwm5";
 		@Override
 		public Object report(Argument[] arg0, Context arg1)
 				throws ExtensionException, LogoException {
@@ -143,27 +144,27 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				modefos.write( "2".getBytes() );
 				modefos.close();
 
-				File fenable = new File( pwmEnable + "gpio5" );
+				File fenable = new File( pwmEnable + TESTPIN );
 				FileOutputStream enableFOS = new FileOutputStream( fenable );
 				enableFOS.write( "0".getBytes() );
 				enableFOS.close();
 				
-				File ffreq = new File( pwmEnable + "gpio5" );
+				File ffreq = new File( pwmFreq + TESTPIN );
 				FileOutputStream freqfos = new FileOutputStream( ffreq );
 				freqfos.write( "195".getBytes() );
 				freqfos.close();
 				
-				fenable = new File( pwmEnable + "gpio5" );
+				fenable = new File( pwmEnable + TESTPIN );
 				enableFOS = new FileOutputStream( fenable );
 				enableFOS.write( "1".getBytes() );
 				enableFOS.close();
 				
-				File flevel = new File( pwmLevel + "gpio5" );
+				File flevel = new File( pwmLevel + TESTPIN );
 				FileOutputStream levelfos = new FileOutputStream( flevel );
 				levelfos.write( "1".getBytes() );
 				levelfos.close();
 				
-				fenable = new File( pwmEnable + "gpio5" );
+				fenable = new File( pwmEnable + TESTPIN );
 				enableFOS = new FileOutputStream( fenable );
 				enableFOS.write( "0".getBytes() );
 				enableFOS.close();
@@ -181,6 +182,8 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	public static class TestPWMPrimitive2 extends DefaultReporter {
 
+		private static final String TESTPIN2 = "pwm5";
+
 		@Override
 		public Object report(Argument[] arg0, Context arg1)
 				throws ExtensionException, LogoException {
@@ -190,28 +193,28 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				modefos.write( "2".getBytes() );
 				modefos.close();
 
-				File fenable = new File( pwmEnable + "gpio5" );
+				File fenable = new File( pwmEnable + TESTPIN2 );
 				FileOutputStream enableFOS = new FileOutputStream( fenable );
 				enableFOS.write( "0".getBytes() );
 				enableFOS.close();
 				
-				File ffreq = new File( pwmEnable + "gpio5" );
+				File ffreq = new File( pwmFreq + TESTPIN2 );
 				FileOutputStream freqfos = new FileOutputStream( ffreq );
 				freqfos.write( "195".getBytes() );
 				freqfos.close();
 				
-				fenable = new File( pwmEnable + "gpio5" );
+				fenable = new File( pwmEnable + TESTPIN2 );
 				enableFOS = new FileOutputStream( fenable );
 				enableFOS.write( "1".getBytes() );
 				enableFOS.close();
 				
-				File flevel = new File( pwmLevel + "gpio5" );
+				File flevel = new File( pwmLevel + TESTPIN2 );
 				FileOutputStream levelfos = new FileOutputStream( flevel );
 				levelfos.write( "128".getBytes() );
 				levelfos.close();
 				
 
-				fenable = new File( pwmEnable + "gpio5" );
+				fenable = new File( pwmEnable + TESTPIN2 );
 				enableFOS = new FileOutputStream( fenable );
 				enableFOS.write( "0".getBytes() );
 				enableFOS.close();
