@@ -164,10 +164,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				levelfos.write( "1".getBytes() );
 				levelfos.close();
 				
-				fenable = new File( pwmEnable + TESTPIN );
-				enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "0".getBytes() );
-				enableFOS.close();
+				
 			} catch (FileNotFoundException fnfe) {
 				fnfe.printStackTrace();
 			} catch (IOException ioe ) {
@@ -214,10 +211,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				levelfos.close();
 				
 
-				fenable = new File( pwmEnable + TESTPIN2 );
-				enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "0".getBytes() );
-				enableFOS.close();
+				
 	
 			} catch (FileNotFoundException fnfe) {
 				fnfe.printStackTrace();
