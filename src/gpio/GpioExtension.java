@@ -464,9 +464,9 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				
 				
 			} catch (FileNotFoundException fnfe) {
-				fnfe.printStackTrace();
+				throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
 			} catch (IOException ioe ) {
-				ioe.printStackTrace();
+				throw new ExtensionException( "IO Exception: " + ioe.getMessage() );
 			}
 			
 			
