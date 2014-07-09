@@ -417,8 +417,8 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		}
 	}
 	
-	
-	
+
+
 	public static class PWMSet extends DefaultReporter {
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax( new int[] { Syntax.StringType(), Syntax.StringType()}, 
@@ -427,52 +427,54 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
 				throws ExtensionException, LogoException {
-			
+
 			String pinNum = arg[0].getString();
 			String pwmLevelValue = arg[1].getString();
-			
+
 			String gpName = "gpio" + pinNum;
 			String pwmName = "pwm" + pinNum;
-			
-			if (legalPWMs.contains(pwmName))
-			try {
-				String pwmMODE = legalModes.get(pwmName).get("pwm");
-				File fmode = new File( modeDir + gpName );
-				FileOutputStream modefos = new FileOutputStream( fmode );
-				modefos.write( pwmMODE.getBytes() );
-				modefos.close();
 
-				File fenable = new File( pwmEnable + pwmName );
-				FileOutputStream enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "0".getBytes() );
-				enableFOS.close();
-				
-				File ffreq = new File( pwmFreq + pwmName );
-				FileOutputStream freqfos = new FileOutputStream( ffreq );
-				freqfos.write( "195".getBytes() );
-				freqfos.close();
-				
-				fenable = new File( pwmEnable + pwmName );
-				enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "1".getBytes() );
-				enableFOS.close();
-				
-				File flevel = new File( pwmLevel + pwmName );
-				FileOutputStream levelfos = new FileOutputStream( flevel );
-				levelfos.write( pwmLevelValue.getBytes() );
-				levelfos.close();
-				
-				
-			} catch (FileNotFoundException fnfe) {
-				throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
-			} catch (IOException ioe ) {
-				throw new ExtensionException( "IO Exception: " + ioe.getMessage() );
+			if (legalPWMs.contains(pwmName)) {
+				try {
+					String pwmMODE = legalModes.get(pwmName).get("pwm");
+					File fmode = new File( modeDir + gpName );
+					FileOutputStream modefos = new FileOutputStream( fmode );
+					modefos.write( pwmMODE.getBytes() );
+					modefos.close();
+
+					File fenable = new File( pwmEnable + pwmName );
+					FileOutputStream enableFOS = new FileOutputStream( fenable );
+					enableFOS.write( "0".getBytes() );
+					enableFOS.close();
+
+					File ffreq = new File( pwmFreq + pwmName );
+					FileOutputStream freqfos = new FileOutputStream( ffreq );
+					freqfos.write( "195".getBytes() );
+					freqfos.close();
+
+					fenable = new File( pwmEnable + pwmName );
+					enableFOS = new FileOutputStream( fenable );
+					enableFOS.write( "1".getBytes() );
+					enableFOS.close();
+
+					File flevel = new File( pwmLevel + pwmName );
+					FileOutputStream levelfos = new FileOutputStream( flevel );
+					levelfos.write( pwmLevelValue.getBytes() );
+					levelfos.close();
+
+				} catch (FileNotFoundException fnfe) {
+					throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
+				} catch (IOException ioe ) {
+					throw new ExtensionException( "IO Exception: " + ioe.getMessage() );
+				}
+
+
+				return pwmName + " set to level " + pwmLevelValue ;
+			} else {
+				return "Some error in matching " + pwmName;
 			}
-			
-			
-			return pwmName + " set to level " + pwmLevelValue ;
+
 		}
-		
 	}
 	
 ///////////test prims
