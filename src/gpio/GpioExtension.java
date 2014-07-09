@@ -39,8 +39,8 @@ public class GpioExtension extends DefaultClassManager {
         "gpio8", "gpio9", "gpio10", "gpio11", "gpio12", "gpio13",
         "gpio14", "gpio15", "gpio16", "gpio17", "gpio18", "gpio19"};
 	
-	static final String[] availablePWMs = {"gpio5", "gpio6", "gpio3", "gpio9", "gpio10", "gpio11"};
-	static final String[] availableNamesPWM = {"pwm5", "pwm6", "pwm3", "pwm9", "pwm10", "pwm11"};
+	static final String[] availablePWMs = {"gpio5", "gpio6" }; //, "gpio3", "gpio9", "gpio10", "gpio11"};
+	static final String[] availableNamesPWM = {"pwm5", "pwm6" }; //, "pwm3", "pwm9", "pwm10", "pwm11"};
 	
 	static final String[] avalableAnalogs = {"adc0", "adc1", "adc2", "adc3", "adc4", "adc5" };
 	static final ArrayList<String> legalAnalogs = new ArrayList<String>();
@@ -461,32 +461,32 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					FileOutputStream modefos = new FileOutputStream( fmode );
 					modefos.write( pwmMODE.getBytes() );
 					modefos.close();
-					System.err.println( "set mode of pin " + gpName + " to " + pwmMODE );
+					//System.err.println( "set mode of pin " + gpName + " to " + pwmMODE );
 					
 					File fenable = new File( pwmEnable + pwmName );
 					FileOutputStream enableFOS = new FileOutputStream( fenable );
 					enableFOS.write( "0".getBytes() );
 					enableFOS.close();
-					System.err.println( "disabled " + pwmName );
+					//System.err.println( "disabled " + pwmName );
 					
 					File ffreq = new File( pwmFreq + pwmName );
 					FileOutputStream freqfos = new FileOutputStream( ffreq );
 					freqfos.write( "195".getBytes() );
 					freqfos.close();
-					System.err.println( "frequency to 195 " );
+					//System.err.println( "frequency to 195 " );
 
 					fenable = new File( pwmEnable + pwmName );
 					enableFOS = new FileOutputStream( fenable );
 					enableFOS.write( "1".getBytes() );
 					enableFOS.close();
-					System.err.println( "enabled " + pwmName );
+					//System.err.println( "enabled " + pwmName );
 					
 					
 					File flevel = new File( pwmLevel + pwmName );
 					FileOutputStream levelfos = new FileOutputStream( flevel );
 					levelfos.write( pwmLevelValue.getBytes() );
 					levelfos.close();
-					System.err.println( "level of  " + pwmName + " to " + pwmLevelValue);
+					//System.err.println( "level of  " + pwmName + " to " + pwmLevelValue);
 
 				} catch (FileNotFoundException fnfe) {
 					throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
