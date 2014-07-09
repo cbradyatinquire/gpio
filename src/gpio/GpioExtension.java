@@ -421,8 +421,8 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	public static class PWMSet extends DefaultReporter {
 		public Syntax getSyntax() {
-			return Syntax.reporterSyntax(new int[] { Syntax.StringType(), Syntax.StringType()
-					 }, Syntax.StringType() );
+			return Syntax.reporterSyntax( new int[] { Syntax.StringType(), Syntax.StringType()}, 
+					Syntax.StringType() );
 		}
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
