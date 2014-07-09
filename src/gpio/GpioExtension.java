@@ -461,26 +461,32 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					FileOutputStream modefos = new FileOutputStream( fmode );
 					modefos.write( pwmMODE.getBytes() );
 					modefos.close();
-
+					System.err.println( "set mode of pin " + gpName + " to " + pwmMODE );
+					
 					File fenable = new File( pwmEnable + pwmName );
 					FileOutputStream enableFOS = new FileOutputStream( fenable );
 					enableFOS.write( "0".getBytes() );
 					enableFOS.close();
-
+					System.err.println( "disabled " + pwmName );
+					
 					File ffreq = new File( pwmFreq + pwmName );
 					FileOutputStream freqfos = new FileOutputStream( ffreq );
 					freqfos.write( "195".getBytes() );
 					freqfos.close();
+					System.err.println( "frequency to 195 " );
 
 					fenable = new File( pwmEnable + pwmName );
 					enableFOS = new FileOutputStream( fenable );
 					enableFOS.write( "1".getBytes() );
 					enableFOS.close();
-
+					System.err.println( "enabled " + pwmName );
+					
+					
 					File flevel = new File( pwmLevel + pwmName );
 					FileOutputStream levelfos = new FileOutputStream( flevel );
 					levelfos.write( pwmLevelValue.getBytes() );
 					levelfos.close();
+					System.err.println( "level of  " + pwmName + " to " + pwmLevelValue);
 
 				} catch (FileNotFoundException fnfe) {
 					throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
