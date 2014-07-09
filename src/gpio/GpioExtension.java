@@ -51,13 +51,17 @@ public class GpioExtension extends DefaultClassManager {
 	static final HashMap<String, String> pinStates = new HashMap<String,String>();
 	
 	static {
+		System.err.println( "Digital Pins");
 		for (String pinName : availablePins ) {
 			HashMap<String, String> modesHere  = new HashMap<String, String>();
 			modesHere.put("read", READ);
 			modesHere.put("write", WRITE);
 			legalModes.put(pinName, modesHere);
 			pinStates.put(pinName, READ);
+			System.err.println( legalModes.get(pinName).get("read"));
 		}
+		
+		System.err.println( "PWMs" );
 		for (String pwmName : availablePWMs ) {
 			HashMap<String, String> modesHere  = legalModes.get(pwmName);
 			if (modesHere != null ) {
@@ -68,15 +72,28 @@ public class GpioExtension extends DefaultClassManager {
 				}
 			}
 			legalModes.put(pwmName, modesHere);
+			System.err.println( legalModes.get(pwmName).get("pwm") );
 		}
 		for (String pwm : availableNamesPWM) {
 			legalPWMs.add(pwm);
 		}
+		System.err.println( "PWM names" );
+		for (String p : legalPWMs ) {
+			System.err.println( p );
+		}
 		for (String digital: availablePins) {
 			legalDigitals.add(digital);
 		}
+		System.err.println( "Digitals names" );
+		for (String d : legalDigitals ) {
+			System.err.println( d );
+		}
 		for (String analog: avalableAnalogs) {
 			legalAnalogs.add(analog);
+		}
+		System.err.println( "Analogs names" );
+		for (String a : legalAnalogs ) {
+			System.err.println( a );
 		}
 	}
 	
