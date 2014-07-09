@@ -456,7 +456,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 			if (legalPWMs.contains(pwmName)) {
 				try {
-					String pwmMODE = legalModes.get(pwmName).get("pwm");
+					String pwmMODE = legalModes.get(gpName).get("pwm");
 					File fmode = new File( modeDir + gpName );
 					FileOutputStream modefos = new FileOutputStream( fmode );
 					modefos.write( pwmMODE.getBytes() );
