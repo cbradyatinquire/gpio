@@ -213,6 +213,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 						FileOutputStream fos = new FileOutputStream( f );
 						fos.write(modeValue.getBytes());
 						fos.close();
+						pinStates.put(pin, modeValue);
 					}
 					catch (Exception e)
 					{
