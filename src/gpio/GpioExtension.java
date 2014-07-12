@@ -301,9 +301,9 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			for (String pinName : availablePins ) {
 				LogoListBuilder littleb = new LogoListBuilder();
 				littleb.add(pinName);
-				Double mode = getMode(pinName);
+				double mode = getMode(pinName);
 				littleb.add( mode );
-				if (mode == Double.valueOf(READ)) {
+				if (mode == 0.0) {
 					littleb.add( getValue(pinName) );
 				} else {
 					littleb.add( new Boolean(false) );
