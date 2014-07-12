@@ -308,7 +308,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				} else {
 					littleb.add( new Boolean(false) );
 				}
-				llb.add(littleb);
+				llb.add(littleb.toLogoList());
 			}
 			for (String aPinName : availableAnalogs ) {
 				LogoListBuilder littleb = new LogoListBuilder();
@@ -316,7 +316,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				littleb.add( READ );
 				littleb.add( getAnalogValue(aPinName) );
 				
-				llb.add(littleb);
+				llb.add(littleb.toLogoList());
 			}
 			return llb.toLogoList();
 		}
