@@ -42,7 +42,7 @@ public class GpioExtension extends DefaultClassManager {
 	static final String[] availablePWMs = {"gpio5", "gpio6" }; //, "gpio3", "gpio9", "gpio10", "gpio11"};
 	static final String[] availableNamesPWM = {"pwm5", "pwm6" }; //, "pwm3", "pwm9", "pwm10", "pwm11"};
 	
-	static final String[] avalableAnalogs = {"adc0", "adc1", "adc2", "adc3", "adc4", "adc5" };
+	static final String[] availableAnalogs = {"adc0", "adc1", "adc2", "adc3", "adc4", "adc5" };
 	static final ArrayList<String> legalAnalogs = new ArrayList<String>();
 	static final ArrayList<String> legalDigitals = new ArrayList<String>();
 	static final ArrayList<String> legalPWMs = new ArrayList<String>();
@@ -88,7 +88,7 @@ public class GpioExtension extends DefaultClassManager {
 		for (String d : legalDigitals ) {
 			System.err.println( d );
 		}
-		for (String analog: avalableAnalogs) {
+		for (String analog: availableAnalogs) {
 			legalAnalogs.add(analog);
 		}
 		System.err.println( "Analogs names" );
@@ -298,7 +298,26 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		public Object report(Argument[] arg, Context ctxt)
 		throws ExtensionException, LogoException {
 			LogoListBuilder llb = new LogoListBuilder();
-			llb.add("Hi There");
+			for (String pinName : availablePins ) {
+				LogoListBuilder littleb = new LogoListBuilder();
+				littleb.add(pinName);
+				Double mode = getMode(pinName);
+				littleb.add( mode );
+				if (mode == Double.valueOf(READ)) {
+					littleb.add( getValue(pinName) );
+				} else {
+					littleb.add( new Boolean(false) );
+				}
+				llb.add(littleb);
+			}
+			for (String aPinName : availableAnalogs ) {
+				LogoListBuilder littleb = new LogoListBuilder();
+				littleb.add(aPinName);
+				littleb.add( READ );
+				littleb.add( getAnalogValue(aPinName) );
+				
+				llb.add(littleb);
+			}
 			return llb.toLogoList();
 		}
 
@@ -314,44 +333,48 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
 		throws ExtensionException, LogoException {
-
 			String pin = arg[0].getString();
-			String contents = "";
 			Double toreturn = -1.0;
-			if ( legalAnalogs.contains(pin) )
-			{
-				try
-				{
-					File f = new File( analogPinDir + pin );
-					FileInputStream fis = new FileInputStream( f );
-					byte[] contbytes = new byte[16];
-					int j = fis.read(contbytes);
-					for (int i = 0; i<j; i++) {
-						contents += (char)contbytes[i];
-					}
-					if (contents.contains(":")) {
-						int k = contents.indexOf(":");
-						contents = contents.substring(k + 1);
-					}
-					while ( contents.endsWith("\\n") ) {
-						contents = contents.substring(0,contents.length()-1);
-					}
-					toreturn = Double.valueOf(contents);
-					fis.close();
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					throw new ExtensionException( "An exception occurred in trying to read from analog pin" + pin + ":\n" + e.getMessage());
-				}
-			}	
-			else
-			{
-				throw new ExtensionException("Analog pin " + pin + " is not defined for this interface to pcDuino.");
-			}
+			toreturn = getAnalogValue( pin );
 			return toreturn;
-			
 		}
+	}
+	
+	private static double getAnalogValue( String pin ) throws ExtensionException {
+		String contents = "";
+		Double toreturn = -1.0;
+		if ( legalAnalogs.contains(pin) )
+		{
+			try
+			{
+				File f = new File( analogPinDir + pin );
+				FileInputStream fis = new FileInputStream( f );
+				byte[] contbytes = new byte[16];
+				int j = fis.read(contbytes);
+				for (int i = 0; i<j; i++) {
+					contents += (char)contbytes[i];
+				}
+				if (contents.contains(":")) {
+					int k = contents.indexOf(":");
+					contents = contents.substring(k + 1);
+				}
+				while ( contents.endsWith("\\n") ) {
+					contents = contents.substring(0,contents.length()-1);
+				}
+				toreturn = Double.valueOf(contents);
+				fis.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				throw new ExtensionException( "An exception occurred in trying to read from analog pin" + pin + ":\n" + e.getMessage());
+			}
+		}	
+		else
+		{
+			throw new ExtensionException("Analog pin " + pin + " is not defined for this interface to pcDuino.");
+		}
+		return toreturn;
 	}
 	
 	
@@ -363,48 +386,50 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
 				throws ExtensionException, LogoException {
-
 			String pin = arg[0].getString();
-			String contents = "";
 			double toreturn = -1.0;
-			if ( legalDigitals.contains(pin) )
-			{
-				String mode = pinStates.get(pin);
-				if ( mode.equals(READ) )
-				{
-						try
-						{
-							File f = new File( pinDir + pin );
-							FileInputStream fis = new FileInputStream( f );
-							int contint;
-							while ((contint = fis.read()) != -1)
-							{
-								contents += (char)contint;
-							}
-							toreturn = Double.valueOf(contents);
-							fis.close();
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
-							throw new ExtensionException( "An exception occurred in trying to read from pin " + pin + ".");
-						}
-				}
-				else
-				{
-					throw new ExtensionException("Pin " + pin + " is not set to READ mode.");
-				}
-			}	
-			else
-			{
-				throw new ExtensionException("Pin " + pin + " is not defined for this interface to pcDuino.");
-			}
-			
+			toreturn = getValue( pin );
 			return toreturn;
 		}
 	}
 	
-	
+	private static double getValue(String pin) throws ExtensionException {
+		Double toreturn = -1.0;
+		String contents = "";
+		if ( legalDigitals.contains(pin) )
+		{
+			String mode = pinStates.get(pin);
+			if ( mode.equals(READ) )
+			{
+					try
+					{
+						File f = new File( pinDir + pin );
+						FileInputStream fis = new FileInputStream( f );
+						int contint;
+						while ((contint = fis.read()) != -1)
+						{
+							contents += (char)contint;
+						}
+						toreturn = Double.valueOf(contents);
+						fis.close();
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+						throw new ExtensionException( "An exception occurred in trying to read from pin " + pin + ".");
+					}
+			}
+			else
+			{
+				throw new ExtensionException("Pin " + pin + " is not set to READ mode.");
+			}
+		}	
+		else
+		{
+			throw new ExtensionException("Pin " + pin + " is not defined for this interface to pcDuino.");
+		}
+		return toreturn;
+	}
 
 
 	public static class DigitalWrite extends DefaultCommand {
