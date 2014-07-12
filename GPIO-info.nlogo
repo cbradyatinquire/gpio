@@ -5,8 +5,8 @@ globals
   adc0 adc1 adc2 adc3 adc4 adc5
   gpio0 gpio1 gpio2 gpio3 gpio4
   gpio5 gpio6 gpio7 gpio8 gpio9
-  gpio10 gpio11 gpio12 gpio13
-  gpio14 gpio15 gpio16 gpio17 gpio18
+  gpio10 gpio11 gpio12 gpio13 gpio14 
+  gpio15 gpio16 gpio17 gpio18 gpio19
 ] 
 
 to setup
@@ -21,9 +21,10 @@ to parse [ alist ]
     let pname item 0 pininfo
     let pmode item 1 pininfo
     let pvalu item 2 pininfo
-    if pmode = 0 [ run (word "set " pname " " pvalu) ]
-    if pmode = 1 [ run (word "set " pname " \"write\"") ]
-    if pmode = 2 [ run (word "set " pname " \"PWM\"") ]
+    
+    if pmode = 0 or pmode = "0" [ run (word "set " pname " " pvalu) ]
+    if pmode = 1 or pmode = "1" [ run (word "set " pname " \"write\"") ]
+    if pmode = 2 or pmode = "2" [ run (word "set " pname " \"PWM\"") ]
   ]
 end
 
@@ -332,6 +333,51 @@ adc5
 17
 1
 11
+
+BUTTON
+30
+65
+102
+98
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+535
+150
+592
+195
+NIL
+gpio19
+17
+1
+11
+
+BUTTON
+45
+135
+127
+168
+update
+refresh
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
