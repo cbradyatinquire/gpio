@@ -151,7 +151,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("analog-read", new AnalogRead() );
 		pm.addPrimitive("pwm-set-level", new PWMSet() );
 		
-		pm.addPrimitive("get-all-info", new AllModes() );
+		pm.addPrimitive("all-info", new AllModes() );
 		
 		//pm.addPrimitive("all-pin-info", new GetAllPinInfo());
 	}
