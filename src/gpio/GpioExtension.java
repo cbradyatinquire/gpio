@@ -151,6 +151,8 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("analog-read", new AnalogRead() );
 		pm.addPrimitive("pwm-set-level", new PWMSet() );
 		
+		pm.addPrimitive("get-all-info", new AllModes() );
+		
 		//pm.addPrimitive("all-pin-info", new GetAllPinInfo());
 	}
 
@@ -163,6 +165,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			File f = new File( pinDir + LED_PIN );
 			try {
 				FileOutputStream fos = new FileOutputStream( f );
+				//yes, "0" means on(!)
 				fos.write( "0".getBytes() );
 				fos.close();
 			} catch (FileNotFoundException fnfe) {
@@ -218,7 +221,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					catch (Exception e)
 					{
 						e.printStackTrace();
-						throw new ExtensionException( "An exception occurred in trying to set pin " + pin + " to mode " + mode + ".");
+						throw new ExtensionException( "An exception occurred in trying to set pin " + pin + " to mode " + mode + "." + e.getMessage());
 					}
 				}
 				else
@@ -241,43 +244,64 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
 		throws ExtensionException, LogoException {
-
 			String pin = arg[0].getString();
 			Double toreturn = -1.0;
-			if ( legalModes.containsKey(pin) )
-			{
-				try
-				{
-					String contents = "";
-					File f = new File( modeDir + pin );
-					FileInputStream fis = new FileInputStream( f );
-					byte[] contbytes = new byte[16];
-					int j = fis.read(contbytes);
-					for (int i = 0; i<j; i++) {
-						contents += (char)contbytes[i];
-					}
-					if (contents.contains(":")) {
-						int k = contents.indexOf(":");
-						contents = contents.substring(k + 1);
-					}
-					while ( contents.endsWith("\\n") ) {
-						contents = contents.substring(0,contents.length()-1);
-					}
-					toreturn = Double.valueOf(contents);
-					fis.close();
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					throw new ExtensionException( "An exception occurred in trying to read mode of pin" + pin + ":\n" + e.getMessage());
-				}
-			}	
-			else
-			{
-				throw new ExtensionException("Pin " + pin + " is not defined for this interface to pcDuino.");
-			}
+			toreturn = getMode(pin);
 			return toreturn;
 		}
+	}
+	
+	private static double getMode(String pin) throws ExtensionException {
+		Double toreturn = -1.0;
+		if ( legalModes.containsKey(pin) )
+		{
+			try
+			{
+				String contents = "";
+				File f = new File( modeDir + pin );
+				FileInputStream fis = new FileInputStream( f );
+				byte[] contbytes = new byte[16];
+				int j = fis.read(contbytes);
+				for (int i = 0; i<j; i++) {
+					contents += (char)contbytes[i];
+				}
+				if (contents.contains(":")) {
+					int k = contents.indexOf(":");
+					contents = contents.substring(k + 1);
+				}
+				while ( contents.endsWith("\\n") ) {
+					contents = contents.substring(0,contents.length()-1);
+				}
+				toreturn = Double.valueOf(contents);
+				fis.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				throw new ExtensionException( "An exception occurred in trying to read mode of pin" + pin + ":\n" + e.getMessage());
+			}
+		}	
+		else
+		{
+			throw new ExtensionException("Pin " + pin + " is not defined for this interface to pcDuino.");
+		}
+		return toreturn;
+	}
+	
+	
+	public static class AllModes extends DefaultReporter {
+		public Syntax getSyntax() {
+			return Syntax.reporterSyntax(new int[] { }, Syntax.ListType() );
+		}
+		
+		@Override
+		public Object report(Argument[] arg, Context ctxt)
+		throws ExtensionException, LogoException {
+			LogoListBuilder llb = new LogoListBuilder();
+			llb.add("Hi There");
+			return llb.toLogoList();
+		}
+
 	}
 	
 	
@@ -365,7 +389,6 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 							e.printStackTrace();
 							throw new ExtensionException( "An exception occurred in trying to read from pin " + pin + ".");
 						}
-					
 				}
 				else
 				{
@@ -379,13 +402,11 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			
 			return toreturn;
 		}
-		
 	}
 	
 	
 
-	
-	
+
 	public static class DigitalWrite extends DefaultCommand {
 		public Syntax getSyntax() {
 			return Syntax.commandSyntax(new int[] { Syntax.StringType(),
