@@ -2,34 +2,34 @@ extensions [ gpio ]
 
 globals 
 [ 
-  adc0 adc1 adc2 adc3 adc4 adc5
-  gpio0 gpio1 gpio2 gpio3 gpio4
-  gpio5 gpio6 gpio7 gpio8 gpio9
-  gpio10 gpio11 gpio12 gpio13 gpio14 
-  gpio15 gpio16 gpio17 gpio18 gpio19
+  digitals
+  analogs
 ] 
 
 to setup
   ca
+  set digitals n-values 19 [ 0 ]
+  set analogs n-values 6 [ 0 ]
   reset-ticks
   parse gpio:all-info
+  
 end
 
-to parse [ alist ]
-  foreach alist [
-    let pininfo ?
-    let pname item 0 pininfo
-    let pmode item 1 pininfo
-    let pvalu item 2 pininfo
-    
-    if pmode = 0 or pmode = "0" [ run (word "set " pname " " pvalu) ]
-    if pmode = 1 or pmode = "1" [ run (word "set " pname " \"write\"") ]
-    if pmode = 2 or pmode = "2" [ run (word "set " pname " \"PWM\"") ]
-  ]
+to parse [ lists ]
+  set digitals item 0 lists
+  set analogs item 1 lists
 end
-
+ 
 to refresh
   parse gpio:all-info
+end
+
+to-report gpio [ n ]
+  report item n digitals
+end
+
+to-report adc [ n ]
+  report item n analogs
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -65,7 +65,7 @@ MONITOR
 999
 92
 NIL
-gpio1
+gpio 1
 17
 1
 11
@@ -76,7 +76,7 @@ MONITOR
 1056
 92
 NIL
-gpio0
+gpio 0
 17
 1
 11
@@ -87,7 +87,7 @@ MONITOR
 942
 92
 NIL
-gpio2
+gpio 2
 17
 1
 11
@@ -98,7 +98,7 @@ MONITOR
 885
 92
 NIL
-gpio3
+gpio 3
 17
 1
 11
@@ -109,7 +109,7 @@ MONITOR
 828
 92
 NIL
-gpio4
+gpio 4
 17
 1
 11
@@ -120,7 +120,7 @@ MONITOR
 772
 92
 NIL
-gpio5
+gpio 5
 17
 1
 11
@@ -131,7 +131,7 @@ MONITOR
 716
 92
 NIL
-gpio6
+gpio 6
 17
 1
 11
@@ -142,7 +142,7 @@ MONITOR
 660
 92
 NIL
-gpio7
+gpio 7
 17
 1
 11
@@ -153,7 +153,7 @@ MONITOR
 603
 92
 NIL
-gpio8
+gpio 8
 17
 1
 11
@@ -164,7 +164,7 @@ MONITOR
 547
 92
 NIL
-gpio9
+gpio 9
 17
 1
 11
@@ -175,7 +175,7 @@ MONITOR
 490
 92
 NIL
-gpio10
+gpio 10
 17
 1
 11
@@ -186,7 +186,7 @@ MONITOR
 434
 92
 NIL
-gpio11
+gpio 11
 17
 1
 11
@@ -197,7 +197,7 @@ MONITOR
 378
 92
 NIL
-gpio12
+gpio 12
 17
 1
 11
@@ -208,7 +208,7 @@ MONITOR
 322
 92
 NIL
-gpio13
+gpio 13
 17
 1
 11
@@ -219,7 +219,7 @@ MONITOR
 876
 193
 NIL
-gpio14
+gpio 14
 17
 1
 11
@@ -230,7 +230,7 @@ MONITOR
 820
 194
 NIL
-gpio15
+gpio 15
 17
 1
 11
@@ -241,7 +241,7 @@ MONITOR
 764
 194
 NIL
-gpio16
+gpio 16
 17
 1
 11
@@ -249,10 +249,10 @@ gpio16
 MONITOR
 651
 149
-708
+711
 194
 NIL
-gpio17
+gpio 17
 17
 1
 11
@@ -263,7 +263,7 @@ MONITOR
 652
 194
 NIL
-gpio18
+gpio 18
 17
 1
 11
@@ -274,7 +274,7 @@ MONITOR
 1060
 460
 NIL
-adc0
+adc 0
 17
 1
 11
@@ -285,7 +285,7 @@ MONITOR
 985
 460
 NIL
-adc1
+adc 1
 17
 1
 11
@@ -296,7 +296,7 @@ MONITOR
 910
 460
 NIL
-adc2
+adc 2
 17
 1
 11
@@ -307,7 +307,7 @@ MONITOR
 835
 460
 NIL
-adc3
+adc 3
 17
 1
 11
@@ -318,7 +318,7 @@ MONITOR
 760
 460
 NIL
-adc4
+adc 4
 17
 1
 11
@@ -329,7 +329,7 @@ MONITOR
 685
 460
 NIL
-adc5
+adc 5
 17
 1
 11
@@ -357,7 +357,7 @@ MONITOR
 592
 195
 NIL
-gpio19
+gpio 19
 17
 1
 11
@@ -722,7 +722,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

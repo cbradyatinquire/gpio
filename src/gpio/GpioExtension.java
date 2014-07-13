@@ -298,26 +298,21 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		public Object report(Argument[] arg, Context ctxt)
 		throws ExtensionException, LogoException {
 			LogoListBuilder llb = new LogoListBuilder();
+			LogoListBuilder littleb = new LogoListBuilder();
 			for (String pinName : availablePins ) {
-				LogoListBuilder littleb = new LogoListBuilder();
-				littleb.add(pinName);
 				double mode = getMode(pinName);
-				littleb.add( mode );
 				if (mode == 0.0) {
 					littleb.add( getValue(pinName) );
 				} else {
-					littleb.add( new Boolean(false) );
+					littleb.add("WRITE" );
 				}
-				llb.add(littleb.toLogoList());
 			}
+			llb.add(littleb.toLogoList());
+			LogoListBuilder littleb2 = new LogoListBuilder();
 			for (String aPinName : availableAnalogs ) {
-				LogoListBuilder littleb = new LogoListBuilder();
-				littleb.add(aPinName);
-				littleb.add( READ );
-				littleb.add( getAnalogValue(aPinName) );
-				
-				llb.add(littleb.toLogoList());
+				littleb2.add( getAnalogValue(aPinName) );
 			}
+			llb.add(littleb2.toLogoList());
 			return llb.toLogoList();
 		}
 
