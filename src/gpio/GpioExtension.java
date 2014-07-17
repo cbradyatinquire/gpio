@@ -146,12 +146,24 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("digital-write", new DigitalWrite() );
 		
 		pm.addPrimitive("analog-read", new AnalogRead() );
-		pm.addPrimitive("pwm-set-level", new PWMSet() );
+		
+		//if ( checkForSYSFS() ) {  //for now, allow the prim to show up even if SYSFS is not set up. 
+			pm.addPrimitive("pwm-set-level", new PWMSet() );
+			pm.addPrimitive("pwm-rest", new PWMRest());
+		//}
 		
 		pm.addPrimitive("all-info", new GetAllPinInfo() );		
+		
 	}
 
 	
+	private static boolean checkForSYSFS() {
+		String filePathString = "/sys/devices/virtual/misc/pwmtimer/level";  //= pwmLevel minus last dir separator
+		File f = new File(filePathString);
+		return (f.exists() && f.isDirectory()); 
+	}
+
+
 	public static class LedOn extends DefaultCommand {
 		@Override
 		public void perform(Argument[] arg0, Context arg1)
@@ -189,6 +201,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	}
 	
 	public static class SetPinMode extends DefaultCommand {
+		@Override
 		public Syntax getSyntax() {
 			return Syntax.commandSyntax(new int[] { Syntax.StringType(),
 					Syntax.StringType() });
@@ -232,6 +245,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	}
 	
 	public static class GetPinMode extends DefaultReporter {
+		@Override
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax(new int[] { Syntax.StringType(),
 					 }, Syntax.NumberType() );
@@ -285,6 +299,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	
 	public static class GetAllPinInfo extends DefaultReporter {
+		@Override
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax(new int[] { }, Syntax.ListType() );
 		}
@@ -299,7 +314,10 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				if (mode == 0.0) {
 					littleb.add( getDigitalValue(pinName) );
 				} else {
-					littleb.add("WRITE" );
+					if (mode < 1.5)
+						littleb.add("WRITE" );
+					else 
+						littleb.add("PWM");
 				}
 			}
 			llb.add(littleb.toLogoList());
@@ -315,6 +333,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	
 	public static class AnalogRead extends DefaultReporter {
+		@Override
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax(new int[] { Syntax.StringType(),
 					 }, Syntax.NumberType() );
@@ -369,6 +388,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	
 	public static class DigitalRead extends DefaultReporter {	
+		@Override
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax(new int[] { Syntax.StringType(),
 					 }, Syntax.NumberType() );
@@ -423,6 +443,8 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 
 	public static class DigitalWrite extends DefaultCommand {
+
+		@Override
 		public Syntax getSyntax() {
 			return Syntax.commandSyntax(new int[] { Syntax.StringType(),
 					Syntax.StringType() });
@@ -474,9 +496,54 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		}
 	}
 	
+	
+	public static class PWMRest extends DefaultReporter {
+		
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.reporterSyntax( new int[] { Syntax.StringType() }, 
+					Syntax.StringType() );
+		}
+		
+		@Override
+		public Object report(Argument[] arg, Context ctxt)
+				throws ExtensionException, LogoException {
+
+			String pinNum = arg[0].getString();
+
+			String gpName = "gpio" + pinNum;
+			String pwmName = "pwm" + pinNum;
+			
+			if (legalPWMs.contains(pwmName)) {
+				try {
+					String pwmMODE = legalModes.get(gpName).get("pwm");
+					File fmode = new File( modeDir + gpName );
+					FileOutputStream modefos = new FileOutputStream( fmode );
+					modefos.write( pwmMODE.getBytes() );
+					modefos.close();
+
+					File fenable = new File( pwmEnable + pwmName );
+					FileOutputStream enableFOS = new FileOutputStream( fenable );
+					enableFOS.write( "0".getBytes() );
+					enableFOS.close();
+				} catch (FileNotFoundException fnfe) {
+					if ( checkForSYSFS() ) {
+						throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
+					} else {
+						throw new ExtensionException( "SYSFS does not seem to be set up.  PWM functions cannot work until it is set up.  File Not Found: " + fnfe.getMessage() );
+					}
+				} catch (IOException ioe ) {
+					throw new ExtensionException( "IO Exception: " + ioe.getMessage() );
+				}
+			}
+			return pwmName + "set to rest (disabled state).";
+		}
+	}
 
 
 	public static class PWMSet extends DefaultReporter {
+		
+		@Override
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax( new int[] { Syntax.StringType(), Syntax.StringType()}, 
 					Syntax.StringType() );
@@ -485,15 +552,6 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		public Object report(Argument[] arg, Context ctxt)
 				throws ExtensionException, LogoException {
 
-			
-			//  Need to check to see if this directory exists:  /sys/devices/virtual/misc/pwmtimer/level
-			//  If not, the user has not set up SYSFS, and PWM will not work.
-			String filePathString = "/sys/devices/virtual/misc/pwmtimer/level";  //= pwmLevel minus last dir separator
-			File f = new File(filePathString);
-			if(!f.exists() ||  !f.isDirectory()) {
-				throw new ExtensionException( "SYSFS must be set up on your pcDuino for PWM commands to work.");
-			}
-			
 			String pinNum = arg[0].getString();
 			String pwmLevelValue = arg[1].getString();
 
@@ -515,7 +573,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					
 					File ffreq = new File( pwmFreq + pwmName );
 					FileOutputStream freqfos = new FileOutputStream( ffreq );
-					freqfos.write( "195".getBytes() );
+					freqfos.write( "195".getBytes() );   //not sure that this is always the best frequency (TODO:
 					freqfos.close();
 
 					fenable = new File( pwmEnable + pwmName );
@@ -530,7 +588,11 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					//System.err.println( "level of  " + pwmName + " to " + pwmLevelValue);
 
 				} catch (FileNotFoundException fnfe) {
-					throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
+					if ( checkForSYSFS() ) {
+						throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
+					} else {
+						throw new ExtensionException( "SYSFS does not seem to be set up.  PWM functions cannot work until it is set up.  File Not Found: " + fnfe.getMessage() );
+					}
 				} catch (IOException ioe ) {
 					throw new ExtensionException( "IO Exception: " + ioe.getMessage() );
 				}
