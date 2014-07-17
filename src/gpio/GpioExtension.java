@@ -485,6 +485,15 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		public Object report(Argument[] arg, Context ctxt)
 				throws ExtensionException, LogoException {
 
+			
+			//  Need to check to see if this directory exists:  /sys/devices/virtual/misc/pwmtimer/level
+			//  If not, the user has not set up SYSFS, and PWM will not work.
+			String filePathString = "/sys/devices/virtual/misc/pwmtimer/level";  //= pwmLevel minus last dir separator
+			File f = new File(filePathString);
+			if(!f.exists() ||  !f.isDirectory()) {
+				throw new ExtensionException( "SYSFS must be set up on your pcDuino for PWM commands to work.");
+			}
+			
 			String pinNum = arg[0].getString();
 			String pwmLevelValue = arg[1].getString();
 
@@ -498,26 +507,21 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					FileOutputStream modefos = new FileOutputStream( fmode );
 					modefos.write( pwmMODE.getBytes() );
 					modefos.close();
-					//System.err.println( "set mode of pin " + gpName + " to " + pwmMODE );
 					
 					File fenable = new File( pwmEnable + pwmName );
 					FileOutputStream enableFOS = new FileOutputStream( fenable );
 					enableFOS.write( "0".getBytes() );
 					enableFOS.close();
-					//System.err.println( "disabled " + pwmName );
 					
 					File ffreq = new File( pwmFreq + pwmName );
 					FileOutputStream freqfos = new FileOutputStream( ffreq );
 					freqfos.write( "195".getBytes() );
 					freqfos.close();
-					//System.err.println( "frequency to 195 " );
 
 					fenable = new File( pwmEnable + pwmName );
 					enableFOS = new FileOutputStream( fenable );
 					enableFOS.write( "1".getBytes() );
 					enableFOS.close();
-					//System.err.println( "enabled " + pwmName );
-					
 					
 					File flevel = new File( pwmLevel + pwmName );
 					FileOutputStream levelfos = new FileOutputStream( flevel );
