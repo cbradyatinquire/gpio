@@ -260,9 +260,9 @@ gpio 17
 
 MONITOR
 145
-115
+145
 195
-160
+190
 NIL
 gpio 18
 17
@@ -336,10 +336,10 @@ adc 5
 11
 
 BUTTON
-42
-65
-117
-98
+5
+10
+80
+43
 NIL
 setup
 NIL
@@ -354,9 +354,9 @@ NIL
 
 MONITOR
 145
-160
+190
 195
-205
+235
 NIL
 gpio 19
 17
@@ -364,10 +364,10 @@ gpio 19
 11
 
 BUTTON
-42
-100
-117
-133
+5
+45
+80
+78
 update
 refresh
 T
@@ -421,7 +421,7 @@ pwm-level
 pwm-level
 2
 128
-108
+127
 1
 1
 NIL
@@ -434,6 +434,89 @@ BUTTON
 378
 pwm power off
 show gpio:pwm-rest (word which-pwm)
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+150
+100
+1070
+133
+digital-pin
+digital-pin
+-17
+0
+-12
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+540
+140
+682
+173
+Set Pin to Write
+gpio:set-mode (word \"gpio\" abs digital-pin) \"WRITE\"
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+350
+140
+492
+173
+Set Pin to READ
+gpio:set-mode (word \"gpio\" abs digital-pin) \"READ\"
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+695
+140
+817
+173
+Pull Pin HIGH
+gpio:digital-write (word \"gpio\" abs digital-pin) \"HIGH\"
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+815
+140
+932
+173
+Pull Pin LOW
+gpio:digital-write (word \"gpio\" abs digital-pin) \"LOW\"
 NIL
 1
 T
