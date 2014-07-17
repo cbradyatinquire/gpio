@@ -4,6 +4,7 @@ globals
 [ 
   digitals
   analogs
+  last-level
 ] 
 
 to setup
@@ -370,6 +371,70 @@ BUTTON
 update
 refresh
 T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+20
+240
+117
+273
+test pwm
+every .1\n[\n if (pwm-level != last-level) [\n show gpio:pwm-set-level (word which-pwm) (word pwm-level)\n set last-level pwm-level\n ]\n ]
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+20
+275
+120
+308
+which-pwm
+which-pwm
+5
+6
+6
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+310
+125
+343
+pwm-level
+pwm-level
+2
+128
+108
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+5
+345
+120
+378
+pwm power off
+show gpio:pwm-rest (word which-pwm)
+NIL
 1
 T
 OBSERVER
