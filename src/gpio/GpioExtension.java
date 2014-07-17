@@ -35,7 +35,7 @@ public class GpioExtension extends DefaultClassManager {
 	static final String READ = "0";
 	static final String WRITE = "1";
 	
-	static final String[] availablePins = {"gpio0","gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7",
+	static final String[] availableDigiPins = {"gpio0","gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7",
         "gpio8", "gpio9", "gpio10", "gpio11", "gpio12", "gpio13",
         "gpio14", "gpio15", "gpio16", "gpio17", "gpio18", "gpio19"};
 	
@@ -51,50 +51,39 @@ public class GpioExtension extends DefaultClassManager {
 	static final HashMap<String, String> pinStates = new HashMap<String,String>();
 	
 	static {
-		System.err.println( "Digital Pins");
-		for (String pinName : availablePins ) {
+		//Digital Pins
+		for (String pinName : availableDigiPins ) {
 			HashMap<String, String> modesHere  = new HashMap<String, String>();
 			modesHere.put("read", READ);
 			modesHere.put("write", WRITE);
 			legalModes.put(pinName, modesHere);
 			pinStates.put(pinName, READ);
-			System.err.println( legalModes.get(pinName).get("read"));
 		}
 		
-		System.err.println( "PWMs" );
+		//PWM pins
 		for (String pwmName : availablePWMs ) {
 			HashMap<String, String> modesHere  = legalModes.get(pwmName);
 			if (modesHere != null ) {
 				if( pwmName.equalsIgnoreCase("gpio5") || pwmName.equalsIgnoreCase("gpio6") ) {
 					modesHere.put("pwm", "2");
 				} else {
-					modesHere.put("pwm", "1");
+					modesHere.put("pwm", "1");  //right now, the PWM functionality on 3,9,10,11 not working.
 				}
 			}
 			legalModes.put(pwmName, modesHere);
-			System.err.println( legalModes.get(pwmName).get("pwm") );
 		}
 		for (String pwm : availableNamesPWM) {
 			legalPWMs.add(pwm);
 		}
-		System.err.println( "PWM names" );
-		for (String p : legalPWMs ) {
-			System.err.println( p );
-		}
-		for (String digital: availablePins) {
+		
+		for (String digital: availableDigiPins) {
 			legalDigitals.add(digital);
 		}
-		System.err.println( "Digitals names" );
-		for (String d : legalDigitals ) {
-			System.err.println( d );
-		}
+		
 		for (String analog: availableAnalogs) {
 			legalAnalogs.add(analog);
 		}
-		System.err.println( "Analogs names" );
-		for (String a : legalAnalogs ) {
-			System.err.println( a );
-		}
+		
 	}
 	
 	
@@ -309,7 +298,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		throws ExtensionException, LogoException {
 			LogoListBuilder llb = new LogoListBuilder();
 			LogoListBuilder littleb = new LogoListBuilder();
-			for (String pinName : availablePins ) {
+			for (String pinName : availableDigiPins ) {
 				double mode = getMode(pinName);
 				if (mode == 0.0) {
 					littleb.add( getDigitalValue(pinName) );
