@@ -136,9 +136,6 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	@Override
 	public void load(PrimitiveManager pm) throws ExtensionException {
-		pm.addPrimitive("test1", new TestPWMPrimitive()  );
-		pm.addPrimitive("test2", new TestPWMPrimitive2()  );
-		
 		pm.addPrimitive("led-on", new LedOn() );
 		pm.addPrimitive("led-off", new LedOff() );
 		
@@ -151,9 +148,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("analog-read", new AnalogRead() );
 		pm.addPrimitive("pwm-set-level", new PWMSet() );
 		
-		pm.addPrimitive("all-info", new AllModes() );
-		
-		//pm.addPrimitive("all-pin-info", new GetAllPinInfo());
+		pm.addPrimitive("all-info", new GetAllPinInfo() );		
 	}
 
 	
@@ -289,7 +284,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	}
 	
 	
-	public static class AllModes extends DefaultReporter {
+	public static class GetAllPinInfo extends DefaultReporter {
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax(new int[] { }, Syntax.ListType() );
 		}
@@ -302,7 +297,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			for (String pinName : availablePins ) {
 				double mode = getMode(pinName);
 				if (mode == 0.0) {
-					littleb.add( getValue(pinName) );
+					littleb.add( getDigitalValue(pinName) );
 				} else {
 					littleb.add("WRITE" );
 				}
@@ -383,12 +378,12 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				throws ExtensionException, LogoException {
 			String pin = arg[0].getString();
 			double toreturn = -1.0;
-			toreturn = getValue( pin );
+			toreturn = getDigitalValue( pin );
 			return toreturn;
 		}
 	}
 	
-	private static double getValue(String pin) throws ExtensionException {
+	private static double getDigitalValue(String pin) throws ExtensionException {
 		Double toreturn = -1.0;
 		String contents = "";
 		if ( legalDigitals.contains(pin) )
@@ -544,103 +539,5 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 		}
 	}
-	
-///////////test prims
-	
-	public static class TestPWMPrimitive extends DefaultReporter {
 
-		private static final String TESTPIN = "pwm5";
-		@Override
-		public Object report(Argument[] arg0, Context arg1)
-				throws ExtensionException, LogoException {
-			try {
-				File fmode = new File( modeDir + "gpio5" );
-				FileOutputStream modefos = new FileOutputStream( fmode );
-				modefos.write( "2".getBytes() );
-				modefos.close();
-
-				File fenable = new File( pwmEnable + TESTPIN );
-				FileOutputStream enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "0".getBytes() );
-				enableFOS.close();
-				
-				File ffreq = new File( pwmFreq + TESTPIN );
-				FileOutputStream freqfos = new FileOutputStream( ffreq );
-				freqfos.write( "195".getBytes() );
-				freqfos.close();
-				
-				fenable = new File( pwmEnable + TESTPIN );
-				enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "1".getBytes() );
-				enableFOS.close();
-				
-				File flevel = new File( pwmLevel + TESTPIN );
-				FileOutputStream levelfos = new FileOutputStream( flevel );
-				levelfos.write( "1".getBytes() );
-				levelfos.close();
-				
-				
-			} catch (FileNotFoundException fnfe) {
-				fnfe.printStackTrace();
-			} catch (IOException ioe ) {
-				ioe.printStackTrace();
-			}
-			
-			
-			return "PWM5 set to level 1";
-		}
-		
-	}
-	
-
-	
-	public static class TestPWMPrimitive2 extends DefaultReporter {
-
-		private static final String TESTPIN2 = "pwm5";
-
-		@Override
-		public Object report(Argument[] arg0, Context arg1)
-				throws ExtensionException, LogoException {
-			try {
-				File fmode = new File( modeDir + "gpio5" );
-				FileOutputStream modefos = new FileOutputStream( fmode );
-				modefos.write( "2".getBytes() );
-				modefos.close();
-
-				File fenable = new File( pwmEnable + TESTPIN2 );
-				FileOutputStream enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "0".getBytes() );
-				enableFOS.close();
-				
-				File ffreq = new File( pwmFreq + TESTPIN2 );
-				FileOutputStream freqfos = new FileOutputStream( ffreq );
-				freqfos.write( "195".getBytes() );
-				freqfos.close();
-				
-				fenable = new File( pwmEnable + TESTPIN2 );
-				enableFOS = new FileOutputStream( fenable );
-				enableFOS.write( "1".getBytes() );
-				enableFOS.close();
-				
-				File flevel = new File( pwmLevel + TESTPIN2 );
-				FileOutputStream levelfos = new FileOutputStream( flevel );
-				levelfos.write( "128".getBytes() );
-				levelfos.close();
-				
-
-				
-	
-			} catch (FileNotFoundException fnfe) {
-				fnfe.printStackTrace();
-			} catch (IOException ioe ) {
-				ioe.printStackTrace();
-			}
-			
-			
-			return "PWM5 set to level 128";
-		}
-		
-	}
-	
-	
 }
