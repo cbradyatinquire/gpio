@@ -81,9 +81,9 @@ to-report adc [ n ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-190
+135
 10
-1222
+1167
 615
 36
 20
@@ -108,9 +108,9 @@ ticks
 30.0
 
 MONITOR
-315
+260
 525
-365
+310
 570
 NIL
 gpio 1
@@ -119,9 +119,9 @@ gpio 1
 11
 
 MONITOR
-265
+210
 525
-315
+260
 570
 NIL
 gpio 0
@@ -130,9 +130,9 @@ gpio 0
 11
 
 MONITOR
-365
+310
 525
-415
+360
 570
 NIL
 gpio 2
@@ -141,9 +141,9 @@ gpio 2
 11
 
 MONITOR
-415
+360
 525
-465
+410
 570
 NIL
 gpio 3
@@ -152,9 +152,9 @@ gpio 3
 11
 
 MONITOR
-465
+410
 525
-515
+460
 570
 NIL
 gpio 4
@@ -163,9 +163,9 @@ gpio 4
 11
 
 MONITOR
-515
+460
 525
-565
+510
 570
 NIL
 gpio 5
@@ -174,9 +174,9 @@ gpio 5
 11
 
 MONITOR
-565
+510
 525
-615
+560
 570
 NIL
 gpio 6
@@ -185,9 +185,9 @@ gpio 6
 11
 
 MONITOR
-615
+560
 525
-665
+610
 570
 NIL
 gpio 7
@@ -196,9 +196,9 @@ gpio 7
 11
 
 MONITOR
-685
+630
 525
-735
+680
 570
 NIL
 gpio 8
@@ -207,9 +207,9 @@ gpio 8
 11
 
 MONITOR
-735
+680
 525
-785
+730
 570
 NIL
 gpio 9
@@ -218,9 +218,9 @@ gpio 9
 11
 
 MONITOR
-785
+730
 525
-835
+780
 570
 NIL
 gpio 10
@@ -229,9 +229,9 @@ gpio 10
 11
 
 MONITOR
-835
+780
 525
-885
+830
 570
 NIL
 gpio 11
@@ -240,9 +240,9 @@ gpio 11
 11
 
 MONITOR
-885
+830
 525
-935
+880
 570
 NIL
 gpio 12
@@ -251,9 +251,9 @@ gpio 12
 11
 
 MONITOR
-935
+880
 525
-985
+930
 570
 NIL
 gpio 13
@@ -262,9 +262,9 @@ gpio 13
 11
 
 MONITOR
-620
+565
 65
-695
+640
 110
 NIL
 adc 0
@@ -273,9 +273,9 @@ adc 0
 11
 
 MONITOR
-545
+490
 65
-620
+565
 110
 NIL
 adc 1
@@ -284,9 +284,9 @@ adc 1
 11
 
 MONITOR
-470
+415
 65
-545
+490
 110
 NIL
 adc 2
@@ -295,9 +295,9 @@ adc 2
 11
 
 MONITOR
-395
+340
 65
-470
+415
 110
 NIL
 adc 3
@@ -306,9 +306,9 @@ adc 3
 11
 
 MONITOR
-320
+265
 65
-395
+340
 110
 NIL
 adc 4
@@ -317,9 +317,9 @@ adc 4
 11
 
 MONITOR
-245
+190
 65
-320
+265
 110
 NIL
 adc 5
@@ -411,9 +411,9 @@ NIL
 1
 
 SLIDER
-265
+210
 575
-1195
+1140
 608
 digital-pin
 digital-pin
@@ -426,9 +426,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-520
+465
 615
-662
+607
 648
 Set Pin to Write
 gpio:set-mode (word \"gpio\" abs digital-pin) \"WRITE\"\nrefresh
@@ -443,9 +443,9 @@ NIL
 1
 
 BUTTON
-330
+275
 615
-472
+417
 648
 Set Pin to READ
 gpio:set-mode (word \"gpio\" abs digital-pin) \"READ\"\nrefresh
@@ -460,9 +460,9 @@ NIL
 1
 
 BUTTON
-675
+620
 615
-797
+742
 648
 Pull Pin HIGH
 gpio:digital-write (word \"gpio\" abs digital-pin) \"HIGH\"
@@ -477,9 +477,9 @@ NIL
 1
 
 BUTTON
-795
+740
 615
-912
+857
 648
 Pull Pin LOW
 gpio:digital-write (word \"gpio\" abs digital-pin) \"LOW\"
@@ -521,9 +521,9 @@ which-pwm
 1
 
 MONITOR
-990
+935
 525
-1040
+985
 570
 NIL
 gpio 14
@@ -532,9 +532,9 @@ gpio 14
 11
 
 MONITOR
-1040
+985
 525
-1090
+1035
 570
 NIL
 gpio 15
@@ -543,9 +543,9 @@ gpio 15
 11
 
 MONITOR
-1090
+1035
 525
-1140
+1085
 570
 NIL
 gpio 16
@@ -554,9 +554,9 @@ gpio 16
 11
 
 MONITOR
-1140
+1085
 525
-1190
+1135
 570
 NIL
 gpio 17
