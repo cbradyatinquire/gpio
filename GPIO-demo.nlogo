@@ -1,4 +1,4 @@
-
+extensions [ gpio ]
 
 globals 
 [ 
@@ -59,7 +59,7 @@ to setup
   set digitals n-values 19 [ 0 ]
   set analogs n-values 6 [ 0 ]
   reset-ticks
- ; parse gpio:all-info
+  parse gpio:all-info
   
 end
 
@@ -69,7 +69,7 @@ to parse [ lists ]
 end
  
 to refresh
- ; parse gpio:all-info
+  parse gpio:all-info
 end
 
 to-report gpio [ n ]
