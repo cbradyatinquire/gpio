@@ -5,10 +5,22 @@ globals
   digitals
   analogs
   last-level
+  strip
+  gopwm
 ] 
+
+to startup
+  setup
+end
+
+to setup-strip 
+  set strip patches with [ abs pycor < 3]
+end
 
 to setup
   ca
+  setup-strip
+  set gopwm true
   set digitals n-values 19 [ 0 ]
   set analogs n-values 6 [ 0 ]
   reset-ticks
@@ -338,7 +350,7 @@ adc 5
 BUTTON
 5
 10
-80
+120
 43
 NIL
 setup
@@ -366,7 +378,7 @@ gpio 19
 BUTTON
 5
 45
-80
+120
 78
 update
 refresh
@@ -381,47 +393,32 @@ NIL
 1
 
 BUTTON
-20
-240
-117
-273
+5
+225
+120
+258
 test pwm
-every .1\n[\n if (pwm-level != last-level) [\n show gpio:pwm-set-level (word which-pwm) (word pwm-level)\n set last-level pwm-level\n ]\n ]
+ifelse (gopwm) \n[every .1\n[\n if (pwm-level != last-level) [\n show gpio:pwm-set-level (word which-pwm) (word pwm-level)\n set last-level pwm-level\n ]\n ]\n ]\n [\n set gopwm true\n stop\n ]
 T
 1
 T
 OBSERVER
 NIL
-NIL
+P
 NIL
 NIL
 1
-
-SLIDER
-20
-275
-120
-308
-which-pwm
-which-pwm
-5
-6
-6
-1
-1
-NIL
-HORIZONTAL
 
 SLIDER
 5
 310
-125
+120
 343
 pwm-level
 pwm-level
 2
 128
-127
+54
 1
 1
 NIL
@@ -433,13 +430,13 @@ BUTTON
 120
 378
 pwm power off
-show gpio:pwm-rest (word which-pwm)
+set gopwm false\nshow gpio:pwm-rest (word which-pwm)\n
 NIL
 1
 T
 OBSERVER
 NIL
-NIL
+O
 NIL
 NIL
 1
@@ -453,7 +450,7 @@ digital-pin
 digital-pin
 -17
 0
--12
+-9
 1
 1
 NIL
@@ -465,7 +462,7 @@ BUTTON
 682
 173
 Set Pin to Write
-gpio:set-mode (word \"gpio\" abs digital-pin) \"WRITE\"
+gpio:set-mode (word \"gpio\" abs digital-pin) \"WRITE\"\nrefresh
 NIL
 1
 T
@@ -482,7 +479,7 @@ BUTTON
 492
 173
 Set Pin to READ
-gpio:set-mode (word \"gpio\" abs digital-pin) \"READ\"
+gpio:set-mode (word \"gpio\" abs digital-pin) \"READ\"\nrefresh
 NIL
 1
 T
@@ -525,6 +522,33 @@ NIL
 NIL
 NIL
 NIL
+1
+
+BUTTON
+10
+125
+112
+158
+tst thresh
+every .1 [refresh ifelse adc 5 > 2270 [\n ask strip [ set pcolor red ]]\n[ask strip [set pcolor black]]\n]
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+5
+265
+120
+310
+which-pwm
+which-pwm
+3 5 6 9 10 11
 1
 
 @#$#@#$#@
