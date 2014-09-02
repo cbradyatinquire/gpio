@@ -39,8 +39,8 @@ public class GpioExtension extends DefaultClassManager {
         "gpio8", "gpio9", "gpio10", "gpio11", "gpio12", "gpio13",
         "gpio14", "gpio15", "gpio16", "gpio17", "gpio18", "gpio19"};
 	
-	static final String[] availablePWMs = {"gpio5", "gpio6" }; //, "gpio3", "gpio9", "gpio10", "gpio11"};
-	static final String[] availableNamesPWM = {"pwm5", "pwm6" }; //, "pwm3", "pwm9", "pwm10", "pwm11"};
+	static final String[] availablePWMs = {"gpio5", "gpio6", "gpio3", "gpio9", "gpio10", "gpio11"};
+	static final String[] availableNamesPWM = {"pwm5", "pwm6", "pwm3", "pwm9", "pwm10", "pwm11"};
 	
 	static final String[] availableAnalogs = {"adc0", "adc1", "adc2", "adc3", "adc4", "adc5" };
 	static final ArrayList<String> legalAnalogs = new ArrayList<String>();
