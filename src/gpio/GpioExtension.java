@@ -142,6 +142,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		//}
 		
 		pm.addPrimitive("all-info", new GetAllPinInfo() );		
+		pm.addPrimitive("tone", new Tone() );
 		
 	}
 
@@ -588,6 +589,73 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 
 				return pwmName + " set to level " + pwmLevelValue ;
+			} else {
+				return "Some error in matching " + pwmName;
+			}
+
+		}
+	}
+
+	
+
+	public static class Tone extends DefaultReporter {
+		
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.reporterSyntax( new int[] { Syntax.StringType(), Syntax.StringType() }, 
+					Syntax.StringType() );
+		}
+		@Override
+		public Object report(Argument[] arg, Context ctxt)
+				throws ExtensionException, LogoException {
+
+			String pinNum = arg[0].getString();
+			String pwmFrequencyValue = arg[1].getString();
+
+			String gpName = "gpio" + pinNum;
+			String pwmName = "pwm" + pinNum;
+
+			if (legalPWMs.contains(pwmName)) {
+				try {
+					String pwmMODE = legalModes.get(gpName).get("pwm");
+					File fmode = new File( modeDir + gpName );
+					FileOutputStream modefos = new FileOutputStream( fmode );
+					modefos.write( pwmMODE.getBytes() );
+					modefos.close();
+					
+					File fenable = new File( pwmEnable + pwmName );
+					FileOutputStream enableFOS = new FileOutputStream( fenable );
+					enableFOS.write( "0".getBytes() );
+					enableFOS.close();
+					
+					File ffreq = new File( pwmFreq + pwmName );
+					FileOutputStream freqfos = new FileOutputStream( ffreq );
+					freqfos.write( pwmFrequencyValue.getBytes() );   
+					freqfos.close();
+
+					fenable = new File( pwmEnable + pwmName );
+					enableFOS = new FileOutputStream( fenable );
+					enableFOS.write( "1".getBytes() );
+					enableFOS.close();
+					
+					File flevel = new File( pwmLevel + pwmName );
+					FileOutputStream levelfos = new FileOutputStream( flevel );
+					levelfos.write( "63".getBytes() );
+					levelfos.close();
+					//System.err.println( "level of  " + pwmName + " to " + pwmLevelValue);
+
+				} catch (FileNotFoundException fnfe) {
+					if ( checkForSYSFS() ) {
+						throw new ExtensionException( "File Not Found: " + fnfe.getMessage() );
+					} else {
+						throw new ExtensionException( "SYSFS does not seem to be set up.  PWM functions cannot work until it is set up.  File Not Found: " + fnfe.getMessage() );
+					}
+				} catch (IOException ioe ) {
+					throw new ExtensionException( "IO Exception: " + ioe.getMessage() );
+				}
+
+
+				return pwmName + " set to frequency " + pwmFrequencyValue ;
 			} else {
 				return "Some error in matching " + pwmName;
 			}
