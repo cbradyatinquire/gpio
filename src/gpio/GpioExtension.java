@@ -604,7 +604,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.reporterSyntax( new int[] { Syntax.StringType() }, 
+			return Syntax.reporterSyntax( new int[] { Syntax.NumberType() }, 
 					Syntax.StringType() );
 		}
 		
@@ -649,7 +649,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.reporterSyntax( new int[] { Syntax.StringType(), Syntax.StringType()}, 
+			return Syntax.reporterSyntax( new int[] { Syntax.NumberType(), Syntax.NumberType()}, 
 					Syntax.StringType() );
 		}
 		@Override
