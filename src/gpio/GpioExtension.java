@@ -197,7 +197,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	public static class SetPinMode extends DefaultCommand {
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.commandSyntax(new int[] { Syntax.StringType(),
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType(),
 					Syntax.StringType() });
 		}
 
@@ -245,7 +245,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	public static class GetPinMode extends DefaultReporter {
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.reporterSyntax(new int[] { Syntax.StringType(),
+			return Syntax.reporterSyntax(new int[] { Syntax.NumberType(),
 					 }, Syntax.NumberType() );
 		}
 		@Override
@@ -662,7 +662,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			int pwmLevelNum = arg[1].getIntValue();
 			checkForValidPWMLevel( pwmLevelNum );
 			
-			String pwmLevelValue = arg[1].getString();
+			String pwmLevelValue = "" + pwmLevelNum;
 
 			String gpName = "gpio" + pinNum;
 			String pwmName = "pwm" + pinNum;
@@ -732,12 +732,13 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			checkForValidPWMPinNumber( pinNum );
 			
 			int pwmFreqNum = arg[1].getIntValue();
-			int pwmLevelNum = arg[2].getIntValue();
-			checkForValidPWMLevel( pwmLevelNum );
 			checkForValidPWMFreq( pwmFreqNum );
 			
-			String pwmFrequencyValue = arg[1].getString();
-			String pwmLevelValue = arg[2].getString();
+			int pwmLevelNum = arg[2].getIntValue();
+			checkForValidPWMLevel( pwmLevelNum );
+			
+			String pwmFrequencyValue = "" + pwmFreqNum;
+			String pwmLevelValue = "" + pwmLevelNum;
 
 			String gpName = "gpio" + pinNum;
 			String pwmName = "pwm" + pinNum;
