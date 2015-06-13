@@ -131,8 +131,12 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("set-mode", new SetPinMode() );
 		pm.addPrimitive("get-mode", new GetPinMode() );
 		
+		pm.addPrimitive("digital-reads", new DigitalReadString() );
 		pm.addPrimitive("digital-read", new DigitalRead() );
+		
+		pm.addPrimitive("digital-write", new DigitalWriteString() );
 		pm.addPrimitive("digital-write", new DigitalWrite() );
+		
 		
 		pm.addPrimitive("analog-read", new AnalogRead() );
 		
@@ -162,7 +166,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			File f = new File( pinDir + LED_PIN );
 			try {
 				FileOutputStream fos = new FileOutputStream( f );
-				//yes, "0" means on(!)
+				//yes, "0" means on, believe it or not(!)
 				fos.write( "0".getBytes() );
 				fos.close();
 			} catch (FileNotFoundException fnfe) {
@@ -200,7 +204,11 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		@Override
 		public void perform(Argument[] arg, Context arg1)
 				throws ExtensionException, LogoException {
-			String pin = arg[0].getString().toLowerCase();
+			
+			int pinNum = arg[0].getIntValue();
+			checkForValidDigitalPinNumber( pinNum );
+			
+			String pin = "gpio" + pinNum;
 			String mode = arg[1].getString().toLowerCase();
 			if ( legalModes.containsKey(pin) )
 			{
@@ -243,7 +251,10 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
 		throws ExtensionException, LogoException {
-			String pin = arg[0].getString();
+			int pinNum = arg[0].getIntValue();
+			checkForValidDigitalPinNumber( pinNum );
+			
+			String pin = "gpio" + pinNum;
 			Double toreturn = -1.0;
 			toreturn = getMode(pin);
 			return toreturn;
@@ -325,16 +336,18 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	public static class AnalogRead extends DefaultReporter {
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.reporterSyntax(new int[] { Syntax.StringType(),
+			return Syntax.reporterSyntax(new int[] { Syntax.NumberType(),
 					 }, Syntax.NumberType() );
 		}
 		
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
 		throws ExtensionException, LogoException {
-			String pin = arg[0].getString();
+			int pinNum = arg[0].getIntValue();
+			checkForValidAnalogPinNumber(pinNum);
+			String pinName = "adc" + pinNum;
 			Double toreturn = -1.0;
-			toreturn = getAnalogValue( pin );
+			toreturn = getAnalogValue( pinName );
 			return toreturn;
 		}
 	}
@@ -377,7 +390,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	}
 	
 	
-	public static class DigitalRead extends DefaultReporter {	
+	public static class DigitalReadString extends DefaultReporter {	
 		@Override
 		public Syntax getSyntax() {
 			return Syntax.reporterSyntax(new int[] { Syntax.StringType(),
@@ -389,6 +402,24 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			String pin = arg[0].getString();
 			double toreturn = -1.0;
 			toreturn = getDigitalValue( pin );
+			return toreturn;
+		}
+	}
+	
+	public static class DigitalRead extends DefaultReporter {	
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.reporterSyntax(new int[] { Syntax.NumberType(),
+					 }, Syntax.NumberType() );
+		}
+		@Override
+		public Object report(Argument[] arg, Context ctxt)
+				throws ExtensionException, LogoException {
+			int pinNum = arg[0].getIntValue();
+			checkForValidDigitalPinNumber( pinNum );
+			String pinName = "gpio" + pinNum;
+			double toreturn = -1.0;
+			toreturn = getDigitalValue( pinName );
 			return toreturn;
 		}
 	}
@@ -431,8 +462,90 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		return toreturn;
 	}
 
+	public static void checkForValidDigitalPinNumber( int num ) throws ExtensionException {
+		if (num < 0) {throw new ExtensionException("Negative digital pin number, " + num + " is invalid."); }
+		if (num > 13) {throw new ExtensionException("Digital pin numbers greater than 13 are not supported. " + num + " is invalid."); }
+	}
+	
+	public static void checkForValidAnalogPinNumber( int num ) throws ExtensionException {
+		if (num < 0) {throw new ExtensionException("Negative analog pin number, " + num + " is invalid."); }
+		if (num > 5) {throw new ExtensionException("Analog pin numbers greater than 5 are not supported. " + num + " is invalid."); }
+	}
+	
+	public static void checkForValidPWMPinNumber( int num ) throws ExtensionException {
+		//"pwm3", "pwm5", "pwm6", "pwm9", "pwm10", "pwm11"
+		if (num != 3 && num != 5 && num != 6 && num != 9 && num != 10 && num != 11) {
+			throw new ExtensionException("Pin number " + num + " is not valid for PWM operations.");
+		}	
+	}
+	
+	public static void checkForValidPWMLevel( int num ) throws ExtensionException {
+		if (num < 0) {throw new ExtensionException("PWM Level must be > 0. The value " + num + " is invalid."); }
+		if (num > 255) {throw new ExtensionException("PWM Level must be < 256. The value " + num + " is invalid."); }
+	}
+	
+	public static void checkForValidPWMFreq( int num ) throws ExtensionException {
+		if (num < 0) {throw new ExtensionException("PWM Frequency must be > 0. The value " + num + " is invalid."); }
+		if (num > 255) {throw new ExtensionException("PWM Frequency must be < 256. The value " + num + " is invalid."); }
+	}
 
 	public static class DigitalWrite extends DefaultCommand {
+
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType(),
+					Syntax.StringType() });
+		}
+
+		@Override
+		public void perform(Argument[] arg, Context arg1)
+				throws ExtensionException, LogoException {
+			int pinNum = arg[0].getIntValue();
+			checkForValidDigitalPinNumber( pinNum );
+			String pinName = "gpio" + pinNum;
+			String state = arg[1].getString();
+			if ( legalDigitals.contains(pinName) )
+			{
+				String mode = pinStates.get(pinName);
+				if ( mode.equals(WRITE) )
+				{
+					if (state.equalsIgnoreCase("HIGH") || state.equalsIgnoreCase("LOW") )
+					{
+						try
+						{
+							File f = new File( pinDir + pinName );
+							FileOutputStream fos = new FileOutputStream( f );
+							if (state.equalsIgnoreCase("HIGH"))
+								fos.write( "1".getBytes() );
+							else
+								fos.write("0".getBytes() );
+							fos.close();
+						}
+						catch (Exception e)
+						{
+							e.printStackTrace();
+							throw new ExtensionException( "An exception occurred in trying to set pin " + pinName + " to mode " + mode + ".");
+						}
+					}
+					else
+					{
+						throw new ExtensionException("The requested state " + state + " is not available in digital-write.  Use HIGH or LOW.");
+					}
+				}
+				else
+				{
+					throw new ExtensionException("Pin " + pinName + " is not set to WRITE mode.");
+				}
+			}	
+			else
+			{
+				throw new ExtensionException("Pin " + pinName + " is not defined for this interface to pcDuino.");
+			}
+			
+		}
+	}
+	
+	public static class DigitalWriteString extends DefaultCommand {
 
 		@Override
 		public Syntax getSyntax() {
@@ -499,8 +612,9 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		public Object report(Argument[] arg, Context ctxt)
 				throws ExtensionException, LogoException {
 
-			String pinNum = arg[0].getString();
-
+			int pinNum = arg[0].getIntValue();
+			checkForValidPWMPinNumber( pinNum );
+			
 			String gpName = "gpio" + pinNum;
 			String pwmName = "pwm" + pinNum;
 			
@@ -542,7 +656,12 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		public Object report(Argument[] arg, Context ctxt)
 				throws ExtensionException, LogoException {
 
-			String pinNum = arg[0].getString();
+			int pinNum = arg[0].getIntValue();
+			checkForValidPWMPinNumber( pinNum );
+			
+			int pwmLevelNum = arg[1].getIntValue();
+			checkForValidPWMLevel( pwmLevelNum );
+			
 			String pwmLevelValue = arg[1].getString();
 
 			String gpName = "gpio" + pinNum;
@@ -602,15 +721,23 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.reporterSyntax( new int[] { Syntax.StringType(), Syntax.StringType() }, 
+			return Syntax.reporterSyntax( new int[] { Syntax.NumberType(), Syntax.NumberType(), Syntax.NumberType() }, 
 					Syntax.StringType() );
 		}
 		@Override
 		public Object report(Argument[] arg, Context ctxt)
 				throws ExtensionException, LogoException {
 
-			String pinNum = arg[0].getString();
+			int pinNum = arg[0].getIntValue();
+			checkForValidPWMPinNumber( pinNum );
+			
+			int pwmFreqNum = arg[1].getIntValue();
+			int pwmLevelNum = arg[2].getIntValue();
+			checkForValidPWMLevel( pwmLevelNum );
+			checkForValidPWMFreq( pwmFreqNum );
+			
 			String pwmFrequencyValue = arg[1].getString();
+			String pwmLevelValue = arg[2].getString();
 
 			String gpName = "gpio" + pinNum;
 			String pwmName = "pwm" + pinNum;
@@ -640,7 +767,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					
 					File flevel = new File( pwmLevel + pwmName );
 					FileOutputStream levelfos = new FileOutputStream( flevel );
-					levelfos.write( "63".getBytes() );
+					levelfos.write( pwmLevelValue.getBytes() );
 					levelfos.close();
 					//System.err.println( "level of  " + pwmName + " to " + pwmLevelValue);
 
