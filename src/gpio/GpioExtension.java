@@ -482,7 +482,9 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		int max = maxLevels.get(pin);
 		if (num > 100) {num = 100;}
 		if (num < 0) { num = 0; }
-		return (int) ((int) (((double)num) / 100.0 ) * ((double)max));
+		double percent = ((double)num) / 100.0;
+		double value = percent * ((double)max);
+		return (int) Math.round(value);
 	}
 	
 	public static void checkForValidPWMFreq( int num, String pin ) throws ExtensionException {
