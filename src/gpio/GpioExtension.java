@@ -42,6 +42,9 @@ public class GpioExtension extends DefaultClassManager {
 	static final String[] availablePWMs = {"gpio5", "gpio6", "gpio3", "gpio9", "gpio10", "gpio11"};
 	static final String[] availableNamesPWM = {"pwm5", "pwm6", "pwm3", "pwm9", "pwm10", "pwm11"};
 	
+	static final HashMap<String, Integer>maxLevels = new HashMap<String,Integer>();
+	static final HashMap<String, Integer>maxFrequencies = new HashMap<String,Integer>();
+	
 	static final String[] availableAnalogs = {"adc0", "adc1", "adc2", "adc3", "adc4", "adc5" };
 	static final ArrayList<String> legalAnalogs = new ArrayList<String>();
 	static final ArrayList<String> legalDigitals = new ArrayList<String>();
@@ -72,6 +75,21 @@ public class GpioExtension extends DefaultClassManager {
 			}
 			legalModes.put(pwmName, modesHere);
 		}
+		maxLevels.put("pwm3",32);
+		maxLevels.put("pwm5",255);
+		maxLevels.put("pwm6",16);
+		maxLevels.put("pwm9",32);
+		maxLevels.put("pwm10",32);
+		maxLevels.put("pwm11",32);
+		
+		maxFrequencies.put("pwm3",8192);
+		maxFrequencies.put("pwm5",66700);
+		maxFrequencies.put("pwm6",66700);
+		maxFrequencies.put("pwm9",8192);
+		maxFrequencies.put("pwm10",8192);
+		maxFrequencies.put("pwm11",8192);
+		
+		
 		for (String pwm : availableNamesPWM) {
 			legalPWMs.add(pwm);
 		}
@@ -460,14 +478,18 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		}	
 	}
 	
-	public static void checkForValidPWMLevel( int num ) throws ExtensionException {
-		if (num < 0) {throw new ExtensionException("PWM Level must be > 0. The value " + num + " is invalid."); }
-		if (num > 255) {throw new ExtensionException("PWM Level must be < 256. The value " + num + " is invalid."); }
+	public static int getPWMValueForPercent( int num, String pin  ) throws ExtensionException {
+		int max = maxLevels.get(pin);
+		if (num > 100) {num = 100;}
+		if (num < 0) { num = 0; }
+		int val = ( num / 100 ) * max;
+		return val;
 	}
 	
-	public static void checkForValidPWMFreq( int num ) throws ExtensionException {
-		if (num < 0) {throw new ExtensionException("PWM Frequency must be > 0. The value " + num + " is invalid."); }
-		if (num > 255) {throw new ExtensionException("PWM Frequency must be < 256. The value " + num + " is invalid."); }
+	public static void checkForValidPWMFreq( int num, String pin ) throws ExtensionException {
+		int max = maxFrequencies.get(pin);
+		if (num < 2) {throw new ExtensionException("PWM Frequency must be >= 2. The value " + num + " is invalid."); }
+		if (num > max) {throw new ExtensionException("PWM Frequency must be <= " + max + ". The value " + num + " is invalid."); }
 	}
 
 	public static class DigitalWrite extends DefaultCommand {
@@ -586,14 +608,12 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 			int pinNum = arg[0].getIntValue();
 			checkForValidPWMPinNumber( pinNum );
-			
-			int pwmLevelNum = arg[1].getIntValue();
-			checkForValidPWMLevel( pwmLevelNum );
-			
-			String pwmLevelValue = "" + pwmLevelNum;
-
 			String gpName = "gpio" + pinNum;
 			String pwmName = "pwm" + pinNum;
+			
+			int pwmPerent = arg[1].getIntValue();
+			int pwmLevelNum = getPWMValueForPercent( pwmPerent, pwmName );
+			String pwmLevelValue = "" + pwmLevelNum;
 
 			if (legalPWMs.contains(pwmName)) {
 				try {
@@ -658,19 +678,17 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 			int pinNum = arg[0].getIntValue();
 			checkForValidPWMPinNumber( pinNum );
-			
-			int pwmFreqNum = arg[1].getIntValue();
-			checkForValidPWMFreq( pwmFreqNum );
-			
-			int pwmLevelNum = arg[2].getIntValue();
-			checkForValidPWMLevel( pwmLevelNum );
-			
-			String pwmFrequencyValue = "" + pwmFreqNum;
-			String pwmLevelValue = "" + pwmLevelNum;
-
 			String gpName = "gpio" + pinNum;
 			String pwmName = "pwm" + pinNum;
-
+			
+			int pwmFreqNum = arg[1].getIntValue();
+			checkForValidPWMFreq( pwmFreqNum, pwmName  );
+			String pwmFrequencyValue = "" + pwmFreqNum;
+			
+			int pwmPercent = arg[2].getIntValue();
+			int pwmLevelNum = getPWMValueForPercent( pwmPercent, pwmName );
+			String pwmLevelValue = "" + pwmLevelNum;
+			
 			if (legalPWMs.contains(pwmName)) {
 				try {
 					String pwmMODE = legalModes.get(gpName).get("pwm");
