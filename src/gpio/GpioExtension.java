@@ -131,12 +131,8 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("set-mode", new SetPinMode() );
 		pm.addPrimitive("get-mode", new GetPinMode() );
 		
-		pm.addPrimitive("digital-reads", new DigitalReadString() );
-		pm.addPrimitive("digital-read", new DigitalRead() );
-		
-		pm.addPrimitive("digital-write", new DigitalWriteString() );
+		pm.addPrimitive("digital-read", new DigitalRead() );		
 		pm.addPrimitive("digital-write", new DigitalWrite() );
-		
 		
 		pm.addPrimitive("analog-read", new AnalogRead() );
 		
@@ -390,21 +386,6 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	}
 	
 	
-	public static class DigitalReadString extends DefaultReporter {	
-		@Override
-		public Syntax getSyntax() {
-			return Syntax.reporterSyntax(new int[] { Syntax.StringType(),
-					 }, Syntax.NumberType() );
-		}
-		@Override
-		public Object report(Argument[] arg, Context ctxt)
-				throws ExtensionException, LogoException {
-			String pin = arg[0].getString();
-			double toreturn = -1.0;
-			toreturn = getDigitalValue( pin );
-			return toreturn;
-		}
-	}
 	
 	public static class DigitalRead extends DefaultReporter {	
 		@Override
@@ -545,60 +526,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		}
 	}
 	
-	public static class DigitalWriteString extends DefaultCommand {
 
-		@Override
-		public Syntax getSyntax() {
-			return Syntax.commandSyntax(new int[] { Syntax.StringType(),
-					Syntax.StringType() });
-		}
-
-		@Override
-		public void perform(Argument[] arg, Context arg1)
-				throws ExtensionException, LogoException {
-			String pin = arg[0].getString();
-			String state = arg[1].getString();
-			if ( legalDigitals.contains(pin) )
-			{
-				String mode = pinStates.get(pin);
-				if ( mode.equals(WRITE) )
-				{
-					if (state.equalsIgnoreCase("HIGH") || state.equalsIgnoreCase("LOW") )
-					{
-						try
-						{
-							File f = new File( pinDir + pin );
-							FileOutputStream fos = new FileOutputStream( f );
-							if (state.equalsIgnoreCase("HIGH"))
-								fos.write( "1".getBytes() );
-							else
-								fos.write("0".getBytes() );
-							fos.close();
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
-							throw new ExtensionException( "An exception occurred in trying to set pin " + pin + " to mode " + mode + ".");
-						}
-					}
-					else
-					{
-						throw new ExtensionException("The requested state " + state + " is not available in digital-write.  Use HIGH or LOW.");
-					}
-				}
-				else
-				{
-					throw new ExtensionException("Pin " + pin + " is not set to WRITE mode.");
-				}
-			}	
-			else
-			{
-				throw new ExtensionException("Pin " + pin + " is not defined for this interface to pcDuino.");
-			}
-			
-		}
-	}
-	
 	
 	public static class PWMRest extends DefaultReporter {
 		
