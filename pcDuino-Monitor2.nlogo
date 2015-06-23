@@ -9,6 +9,7 @@ globals [ selected input-ports output-ports power-in power-out
   strip
   gopwm
   run-text 
+  scale-frequencies
   ]
 
 breed [ components component ]
@@ -38,8 +39,13 @@ to setup-configurations
   set output-ports ["D0" "D1" "D2" "D3" "D4" "D5" "D6" "D7" "D8" "D9" "D10" "D11" "D12" "D13" "A0" "A1" "A2" "A3" "A4" "A5"]
   set power-in sentence ["3.3V" "5V" ] input-ports
   set power-out [ "GND-1" "GND-2" "GND-3" ]
+  
+  set scale-frequencies [ 262 294 330 349 392 440 494 523 ]
 end
 
+to change-tone
+  show gpio:tone which-pwm frequency pwm-level  
+end
 
 to startup
   setup
@@ -590,16 +596,16 @@ NIL
 SLIDER
 10
 575
-125
+170
 608
 pwm-level
 pwm-level
-2
-128
-54
+0
+100
+82
 1
 1
-NIL
+percent
 HORIZONTAL
 
 BUTTON
@@ -710,7 +716,7 @@ CHOOSER
 which-pwm
 which-pwm
 3 5 6 9 10 11
-1
+3
 
 BUTTON
 900
@@ -720,6 +726,55 @@ BUTTON
 NIL
 run-circuit
 T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+5
+355
+140
+388
+frequency
+frequency
+2
+900
+523
+1
+1
+hz
+HORIZONTAL
+
+BUTTON
+15
+410
+137
+443
+change tone
+change-tone
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+30
+300
+132
+333
+play scale
+foreach scale-frequencies [\nset frequency ?\nchange-tone\nwait .5 \n]\nshow gpio:pwm-rest which-pwm
+NIL
 1
 T
 OBSERVER
