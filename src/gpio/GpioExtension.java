@@ -53,6 +53,7 @@ public class GpioExtension extends DefaultClassManager {
 	static final HashMap<String, HashMap<String, String>> legalModes = new HashMap<String, HashMap<String, String>>();
 	static final HashMap<String, String> pinStates = new HashMap<String,String>();
 	
+	static PortWatcher portWatcher;
 	static {
 		//Digital Pins
 		for (String pinName : availableDigiPins ) {
@@ -101,6 +102,8 @@ public class GpioExtension extends DefaultClassManager {
 		for (String analog: availableAnalogs) {
 			legalAnalogs.add(analog);
 		}
+		
+		
 		
 	}
 	
@@ -161,6 +164,34 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		
 		pm.addPrimitive("all-info", new GetAllPinInfo() );		
 		pm.addPrimitive("tone", new Tone() );
+		
+		pm.addPrimitive("watch-ports", new WatchPorts() );
+		pm.addPrimitive("port-change-counts", new ReadChangeCounts() );
+	}
+	
+	public static class WatchPorts extends DefaultCommand {
+
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			portWatcher = new PortWatcher(pinDir);
+			portWatcher.run();
+		}
+		
+	}
+	
+	public static class ReadChangeCounts extends DefaultReporter {
+
+		@Override
+		public Object report(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			LogoListBuilder llb = new LogoListBuilder();
+			for (int i = 0; i<portWatcher.changeCounts.length; i++) {
+				llb.add(portWatcher.changeCounts[i]);
+			}
+			return llb.toLogoList();
+		}
 		
 	}
 
