@@ -176,7 +176,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				throws ExtensionException {
 			
 			portWatcher = new PortWatcher(pinDir);
-			portWatcher.run();
+			portWatcher.start();
 		}
 		
 	}

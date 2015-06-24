@@ -3,7 +3,7 @@ package gpio;
 import java.io.IOException;
 import java.nio.file.*;
 
-public class PortWatcher implements Runnable {
+public class PortWatcher extends Thread {
 
 	public int[] changeCounts = new int[14];
 	WatchService watchService;
