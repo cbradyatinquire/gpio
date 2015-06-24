@@ -53,7 +53,7 @@ public class GpioExtension extends DefaultClassManager {
 	static final HashMap<String, HashMap<String, String>> legalModes = new HashMap<String, HashMap<String, String>>();
 	static final HashMap<String, String> pinStates = new HashMap<String,String>();
 	
-	static PortWatcher portWatcher;
+	static HashMap<Integer, PortWatcher> portWatcherMap = new HashMap<Integer, PortWatcher>();
 	static {
 		//Digital Pins
 		for (String pinName : availableDigiPins ) {
@@ -165,18 +165,24 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("all-info", new GetAllPinInfo() );		
 		pm.addPrimitive("tone", new Tone() );
 		
-		pm.addPrimitive("watch-ports", new WatchPorts() );
-		pm.addPrimitive("port-change-counts", new ReadChangeCounts() );
+		pm.addPrimitive("watch-port", new WatchPorts() );
+		pm.addPrimitive("port-change-count", new ReadChangeCounts() );
 	}
 	
 	public static class WatchPorts extends DefaultCommand {
 
 		@Override
+		public Syntax getSyntax() {
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType() });
+		}
+		
+		@Override
 		public void perform(Argument[] args, Context ctxt)
 				throws ExtensionException {
 			
-			portWatcher = new PortWatcher(pinDir);
-			portWatcher.start();
+			int pinNum = args[1].getIntValue();
+			PortWatcher portWatcher = new PortWatcher(pinDir, pinNum);
+			portWatcherMap.put(new Integer(pinNum), portWatcher);
 		}
 		
 	}
@@ -185,17 +191,18 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.reporterSyntax(new int[] { }, Syntax.ListType() );
+			return Syntax.reporterSyntax(new int[] { Syntax.NumberType() }, Syntax.ListType() );
 		}
 		@Override
 		public Object report(Argument[] args, Context ctxt)
 				throws ExtensionException {
-			LogoListBuilder llb = new LogoListBuilder();
-			for (int i = 0; i<portWatcher.changeCounts.length; i++) {
-				double reading = (double)portWatcher.changeCounts[i];
-				llb.add(reading);
+			Integer port = args[0].getIntValue();
+			PortWatcher pw = portWatcherMap.get(port);
+			if (pw == null) {
+				throw new ExtensionException("Port " + port + " is not being watched");
+			} else {
+				return pw.getPortData();
 			}
-			return llb.toLogoList();
 		}
 		
 	}
@@ -459,7 +466,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		}
 	}
 	
-	private static double getDigitalValue(String pin) throws ExtensionException {
+	static double getDigitalValue(String pin) throws ExtensionException {
 		Double toreturn = -1.0;
 		String contents = "";
 		if ( legalDigitals.contains(pin) )

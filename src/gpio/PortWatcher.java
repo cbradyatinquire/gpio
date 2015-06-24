@@ -1,55 +1,68 @@
 package gpio;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 
+import org.nlogo.api.LogoList;
+import org.nlogo.api.LogoListBuilder;
+
 public class PortWatcher extends Thread {
 
-	public int[] changeCounts = new int[14];
-	WatchService watchService;
-	WatchKey watchKey;
+	int countChanges = 0;
+	int lastValue = 0;
+	String pinString;
+	Path pinPath;
+	File f; 
 	
-	public PortWatcher ( String pinDir ) {
-		Path pinDirectory = FileSystems.getDefault().getPath(pinDir);
-		for (int p = 0; p<14; p++) {
-			changeCounts[p]=0;
-		}
-		try {
-			watchService = FileSystems.getDefault().newWatchService();
-			watchKey = pinDirectory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	long startTime;
+	
+	
+	
+	public PortWatcher ( String pinDir, int pinNumber ) {
+		pinString = "gpio" + pinNumber;
+		pinPath = FileSystems.getDefault().getPath(pinDir, pinString);
+		f = pinPath.toFile();
+	}
+	
+	public LogoList getPortData() {
+		LogoListBuilder llb = new LogoListBuilder();
+		long endTime = System.currentTimeMillis();
+		llb.add( new Double( ((double)(endTime - startTime))/1000.0 ));
+		llb.add( new Double( countChanges ) );
+		return llb.toLogoList();
 	}
 	
 	@Override
 	public void run() {
+		startTime = System.currentTimeMillis();
 		while (true) {
 			try {
-				final WatchKey wk = watchService.take();
-				for (WatchEvent<?> event : wk.pollEvents()) {
-					//we're only registered for "ENTRY_MODIFY" so the context is always a Path.
-					final Path changed = (Path) event.context();
-					String changedString = changed.toString();
-					int numBegin = changedString.indexOf("gpio");
-					if (numBegin > 0) {
-						numBegin = numBegin + "gpio".length();
-						String id = changedString.substring(numBegin);
-						int port = Integer.valueOf(id);
-						changeCounts[port]++;
-					}
-				}
-				// reset the key
-				boolean valid = wk.reset();
-				if (!valid) {
-					System.out.println("Key has been unregistered");
-				}
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+			if ( GpioExtension.pinStates.get(pinString).equals(GpioExtension.READ) )
+			{
+				FileInputStream fis = new FileInputStream( f );
+				int currentvalue = fis.read();
+				fis.close();
 
+				if (currentvalue != lastValue) {
+					countChanges++;
+					lastValue = currentvalue;
+				}
+			} 
+			}catch (FileNotFoundException fnfe) {
+				fnfe.printStackTrace();
+			}catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+			
+			/*try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}*/
+		}
 	}
 
 }
