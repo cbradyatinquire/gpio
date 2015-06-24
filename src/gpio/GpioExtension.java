@@ -511,7 +511,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	public static int getPWMValueForPercent( int num, String pin  ) throws ExtensionException {
 		int max = maxLevels.get(pin);
-		if (num > 100) {num = 100;}
+		//if (num > 100) {num = 100;}
 		if (num < 0) { num = 0; }
 		double percent = ((double)num) / 100.0;
 		double value = percent * ((double)max);
