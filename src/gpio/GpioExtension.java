@@ -184,11 +184,16 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	public static class ReadChangeCounts extends DefaultReporter {
 
 		@Override
+		public Syntax getSyntax() {
+			return Syntax.reporterSyntax(new int[] { }, Syntax.ListType() );
+		}
+		@Override
 		public Object report(Argument[] args, Context ctxt)
 				throws ExtensionException {
 			LogoListBuilder llb = new LogoListBuilder();
 			for (int i = 0; i<portWatcher.changeCounts.length; i++) {
-				llb.add(portWatcher.changeCounts[i]);
+				double reading = (double)portWatcher.changeCounts[i];
+				llb.add(reading);
 			}
 			return llb.toLogoList();
 		}
