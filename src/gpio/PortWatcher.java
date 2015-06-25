@@ -23,14 +23,18 @@ public class PortWatcher extends Thread {
 	
 	public PortWatcher ( String pinDir, int pinNumber ) {
 		pinString = "gpio" + pinNumber;
-		pinPath = FileSystems.getDefault().getPath(pinDir, pinString);
-		f = pinPath.toFile();
+		f = new File( pinDir + pinString );
+		//pinPath = FileSystems.getDefault().getPath(pinDir, pinString);
+		//f = pinPath.toFile();
 	}
 	
 	public LogoList getPortData() {
 		LogoListBuilder llb = new LogoListBuilder();
 		long endTime = System.currentTimeMillis();
-		llb.add( new Double( ((double)(endTime - startTime))/1000.0 ));
+		long diff = endTime - startTime;
+		double secs = ((double)diff) / 1000.0;
+		
+		llb.add( new Double( secs ) );
 		llb.add( new Double( countChanges ) );
 		return llb.toLogoList();
 	}

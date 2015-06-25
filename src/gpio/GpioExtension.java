@@ -180,9 +180,10 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		public void perform(Argument[] args, Context ctxt)
 				throws ExtensionException {
 			
-			int pinNum = args[1].getIntValue();
+			int pinNum = args[0].getIntValue();
 			PortWatcher portWatcher = new PortWatcher(pinDir, pinNum);
 			portWatcherMap.put(new Integer(pinNum), portWatcher);
+			portWatcher.start();
 		}
 		
 	}
