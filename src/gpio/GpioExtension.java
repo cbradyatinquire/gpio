@@ -210,7 +210,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	public static class WatchPort extends DefaultCommand {
 		@Override
 		public Syntax getSyntax() {
-			return Syntax.commandSyntax(new int[] { Syntax.NumberType() });
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType(), Syntax.NumberType() });
 		}
 		
 		@Override
@@ -218,7 +218,8 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				throws ExtensionException {
 			
 			int pinNum = args[0].getIntValue();
-			PortWatcher portWatcher = new PortWatcher(pinDir, pinNum);
+			int delay = args[1].getIntValue();
+			PortWatcher portWatcher = new PortWatcher(pinDir, pinNum, delay);
 			portWatcherMap.put(new Integer(pinNum), portWatcher);
 			portWatcher.start();
 		}

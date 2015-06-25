@@ -19,12 +19,20 @@ public class PortWatcher extends Thread {
 	
 	long startTime;
 	boolean keepgoing = true;
+	int delayTime = 0;
 	
 	
 	public void terminate() { keepgoing = false; }
 	
+	//currently unused, replaced by the delay-specifing constructor
 	public PortWatcher ( String pinDir, int pinNumber ) {
 		pinString = "gpio" + pinNumber;
+		f = new File( pinDir + pinString );
+	}
+	
+	public PortWatcher ( String pinDir, int pinNumber, int dlay ) {
+		pinString = "gpio" + pinNumber;
+		if (dlay > 0) { delayTime = dlay; }
 		f = new File( pinDir + pinString );
 	}
 	
@@ -66,11 +74,13 @@ public class PortWatcher extends Thread {
 				ioe.printStackTrace();
 			}
 			
-			/*try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}*/
+			if (delayTime > 0) {
+				try {
+					Thread.sleep(delayTime);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
