@@ -18,14 +18,19 @@ public class PortWatcher extends Thread {
 	File f; 
 	
 	long startTime;
+	boolean keepgoing = true;
 	
 	
+	public void terminate() { keepgoing = false; }
 	
 	public PortWatcher ( String pinDir, int pinNumber ) {
 		pinString = "gpio" + pinNumber;
 		f = new File( pinDir + pinString );
-		//pinPath = FileSystems.getDefault().getPath(pinDir, pinString);
-		//f = pinPath.toFile();
+	}
+	
+	public void resetCounter() {
+		countChanges = 0;
+		startTime = System.currentTimeMillis();
 	}
 	
 	public LogoList getPortData() {
@@ -42,7 +47,7 @@ public class PortWatcher extends Thread {
 	@Override
 	public void run() {
 		startTime = System.currentTimeMillis();
-		while (true) {
+		while (keepgoing) {
 			try {
 			if ( GpioExtension.pinStates.get(pinString).equals(GpioExtension.READ) )
 			{

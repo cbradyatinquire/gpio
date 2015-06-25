@@ -165,12 +165,49 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		pm.addPrimitive("all-info", new GetAllPinInfo() );		
 		pm.addPrimitive("tone", new Tone() );
 		
-		pm.addPrimitive("watch-port", new WatchPorts() );
-		pm.addPrimitive("port-change-count", new ReadChangeCounts() );
+		pm.addPrimitive("watch-port", new WatchPort() );
+		pm.addPrimitive("port-change-count", new ReadChangeCount() );
+		pm.addPrimitive("reset-port-change-count", new ResetChangeCount() );
+		pm.addPrimitive("unwatch-port", new UnwatchPort() );
+		pm.addPrimitive("unwatch-all-ports", new UnwatchAllPorts() );
 	}
 	
-	public static class WatchPorts extends DefaultCommand {
-
+	public static class UnwatchAllPorts extends DefaultCommand {
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			for (Integer i: portWatcherMap.keySet() ) {
+				PortWatcher pw = portWatcherMap.get(i);
+				pw.terminate();
+			}
+			portWatcherMap.clear();
+		}	
+	}
+	
+	public static class UnwatchPort extends DefaultCommand {
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType() });
+		}
+		
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			int pinNum = args[0].getIntValue();
+			Integer pinID = new Integer(pinNum);
+			PortWatcher pw = portWatcherMap.get(pinID);
+			if (pw == null) {
+				throw new ExtensionException("Port " + pinNum + " is not being watched");
+			} else {
+				pw.terminate();
+				portWatcherMap.remove(pinID);
+			}
+		}
+	}
+	
+	public static class WatchPort extends DefaultCommand {
 		@Override
 		public Syntax getSyntax() {
 			return Syntax.commandSyntax(new int[] { Syntax.NumberType() });
@@ -188,7 +225,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		
 	}
 	
-	public static class ReadChangeCounts extends DefaultReporter {
+	public static class ReadChangeCount extends DefaultReporter {
 
 		@Override
 		public Syntax getSyntax() {
@@ -204,6 +241,28 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 			} else {
 				return pw.getPortData();
 			}
+		}
+		
+	}
+	
+	public static class ResetChangeCount extends DefaultCommand {
+
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType() });
+		}
+		
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			Integer port = args[0].getIntValue();
+			PortWatcher pw = portWatcherMap.get(port);
+			if (pw == null) {
+				throw new ExtensionException("Port " + port + " is not being watched");
+			} else {
+				pw.resetCounter();
+			} 
 		}
 		
 	}
