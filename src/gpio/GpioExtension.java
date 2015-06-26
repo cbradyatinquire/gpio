@@ -68,7 +68,7 @@ public class GpioExtension extends DefaultClassManager {
 		for (String pwmName : availablePWMs ) {
 			HashMap<String, String> modesHere  = legalModes.get(pwmName);
 			if (modesHere != null ) {
-				if( pwmName.equalsIgnoreCase("gpio5") || pwmName.equalsIgnoreCase("gpio6") ) {
+				if( pwmName.equalsIgnoreCase("gpio3") || pwmName.equalsIgnoreCase("gpio5") || pwmName.equalsIgnoreCase("gpio6") || pwmName.equalsIgnoreCase("gpio9") || pwmName.equalsIgnoreCase("gpio10") || pwmName.equalsIgnoreCase("gpio11")  ) {
 					modesHere.put("pwm", "2");
 				} else {
 					modesHere.put("pwm", "1");  //right now, the PWM functionality on 3,9,10,11 not working.
@@ -76,12 +76,12 @@ public class GpioExtension extends DefaultClassManager {
 			}
 			legalModes.put(pwmName, modesHere);
 		}
-		maxLevels.put("pwm3",32);
+		maxLevels.put("pwm3",128);
 		maxLevels.put("pwm5",255);
-		maxLevels.put("pwm6",16);
-		maxLevels.put("pwm9",32);
-		maxLevels.put("pwm10",32);
-		maxLevels.put("pwm11",32);
+		maxLevels.put("pwm6",255);
+		maxLevels.put("pwm9",128);
+		maxLevels.put("pwm10",128);
+		maxLevels.put("pwm11",128);
 		
 		maxFrequencies.put("pwm3",8192);
 		maxFrequencies.put("pwm5",66700);
