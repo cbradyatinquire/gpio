@@ -708,9 +708,9 @@ SETUP SCREEN ROBOTS
 
 BUTTON
 970
-410
-1105
-443
+440
+1090
+485
 Take a Photo
 take-a-photo
 NIL
@@ -725,9 +725,9 @@ NIL
 
 BUTTON
 970
-465
-1105
-498
+495
+1090
+530
 Save World State
 save-world-state
 NIL
@@ -742,10 +742,10 @@ NIL
 
 BUTTON
 970
-505
-1105
-538
-Load Prior World State
+535
+1090
+570
+Load a World State
 load-world-state
 NIL
 1
@@ -836,11 +836,11 @@ bump-sensor-RIGHT
 Number
 
 TEXTBOX
-965
-385
-1115
-401
-CAPTURE/RECORD
+970
+395
+1065
+431
+CAPTURE / RECORD
 16
 123.0
 1
