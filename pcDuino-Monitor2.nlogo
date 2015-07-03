@@ -32,6 +32,22 @@ ports-own [
 ]
 
 
+
+to test
+  if gpio:digital-read 6 = 0 [
+  let normal true
+  if gpio:digital-read 1 = 0 [
+    set normal false
+    gpio:digital-write 8 "HIGH"
+    wait .2
+    gpio:digital-write 8 "LOW"    
+  ]
+  
+  if normal [ gpio:digital-write 11 "HIGH"  gpio:digital-write 12 "HIGH" wait .1 gpio:digital-write 11 "LOW"  gpio:digital-write 12 "LOW"  ]
+  ]
+end
+  
+
 to setup-configurations 
   set run-text "NOT RUNNING"
   set-default-shape ports "square 2" 
@@ -602,7 +618,7 @@ pwm-level
 pwm-level
 0
 100
-82
+60
 1
 1
 percent
@@ -634,7 +650,7 @@ digital-pin
 digital-pin
 0
 13
-3
+0
 1
 1
 NIL
@@ -716,7 +732,7 @@ CHOOSER
 which-pwm
 which-pwm
 3 5 6 9 10 11
-3
+4
 
 BUTTON
 900
@@ -775,6 +791,23 @@ BUTTON
 play scale
 foreach scale-frequencies [\nset frequency ?\nchange-tone\nwait .5 \n]\nshow gpio:pwm-rest which-pwm
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1038
+225
+1102
+259
+NIL
+test
+T
 1
 T
 OBSERVER
