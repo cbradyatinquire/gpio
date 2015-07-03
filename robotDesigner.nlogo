@@ -408,9 +408,9 @@ to load-world-state
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-465
+440
 10
-953
+928
 519
 50
 50
@@ -435,9 +435,9 @@ ticks
 30.0
 
 INPUTBOX
+10
 35
-35
-240
+215
 140
 right-brighter-than-left
 right-wheel-forward 2\n;right-wheel-backward 1\n;left-wheel-forward 1\n;left-wheel-backward 1
@@ -446,9 +446,9 @@ right-wheel-forward 2\n;right-wheel-backward 1\n;left-wheel-forward 1\n;left-whe
 String (commands)
 
 INPUTBOX
-245
+220
 35
-460
+435
 140
 left-brighter-than-right
 ;right-wheel-forward 1\n;right-wheel-backward 1\nleft-wheel-forward 2\n;left-wheel-backward 1
@@ -457,9 +457,9 @@ left-brighter-than-right
 String (commands)
 
 INPUTBOX
-35
+10
 145
-240
+215
 250
 right-color-darker-than-left
 right-wheel-forward 2\n;right-wheel-backward 1\n;left-wheel-forward 1\nleft-wheel-backward 2
@@ -468,9 +468,9 @@ right-wheel-forward 2\n;right-wheel-backward 1\n;left-wheel-forward 1\nleft-whee
 String (commands)
 
 INPUTBOX
-245
+220
 145
-460
+435
 250
 left-color-darker-than-right
 ;right-wheel-forward 1\nright-wheel-backward 2\nleft-wheel-forward 2\n;left-wheel-backward 1
@@ -479,9 +479,9 @@ left-color-darker-than-right
 String (commands)
 
 INPUTBOX
-35
+10
 255
-240
+215
 380
 contact-with-right-bump-sensor
 ;right-wheel-forward 1\nright-wheel-backward 20\nleft-wheel-forward 10\nleft-wheel-backward 15 
@@ -490,9 +490,9 @@ contact-with-right-bump-sensor
 String (commands)
 
 INPUTBOX
-245
+220
 255
-460
+435
 380
 contact-with-left-bump-sensor
 ;right-wheel-forward 1\nleft-wheel-backward 20\nright-wheel-forward 10\nright-wheel-backward 15 
@@ -501,9 +501,9 @@ contact-with-left-bump-sensor
 String (commands)
 
 BUTTON
-75
+60
 485
-235
+215
 545
 NIL
 run-for-screen-robots
@@ -518,9 +518,9 @@ NIL
 0
 
 BUTTON
-30
+10
 435
-95
+75
 468
 setup
 setup-robots
@@ -535,9 +535,9 @@ NIL
 1
 
 SLIDER
-100
+80
 435
-235
+215
 468
 howmany-robots
 howmany-robots
@@ -550,9 +550,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-965
+940
 60
-1085
+1060
 93
 Draw a Line
 draw-lines
@@ -567,9 +567,9 @@ NIL
 1
 
 BUTTON
-965
+940
 150
-1085
+1060
 183
 Draw a Wall
 draw-walls
@@ -584,9 +584,9 @@ NIL
 1
 
 BUTTON
-965
+940
 95
-1085
+1060
 128
 Erase a Line
 erase-lines
@@ -601,9 +601,9 @@ NIL
 1
 
 BUTTON
-965
+940
 185
-1085
+1060
 218
 Erase a Wall
 erase-walls
@@ -618,9 +618,9 @@ NIL
 1
 
 BUTTON
-965
+940
 240
-1085
+1060
 273
 Place a Light
 place-lights
@@ -635,9 +635,9 @@ NIL
 1
 
 BUTTON
-965
+940
 275
-1085
+1060
 308
 Remove a Light
 remove-lights
@@ -652,9 +652,9 @@ NIL
 1
 
 SLIDER
-25
+10
 550
-235
+215
 583
 delay
 delay
@@ -667,9 +667,9 @@ sec
 HORIZONTAL
 
 TEXTBOX
-965
+940
 10
-1100
+1075
 50
 DESIGN VIRTUAL ENVIRONMENT
 16
@@ -677,9 +677,9 @@ DESIGN VIRTUAL ENVIRONMENT
 1
 
 TEXTBOX
-40
+15
 10
-450
+425
 26
 PROGRAM YOUR SCREEN & PHYSICAL ROBOTS
 16
@@ -687,9 +687,9 @@ PROGRAM YOUR SCREEN & PHYSICAL ROBOTS
 1
 
 TEXTBOX
-25
+10
 480
-70
+55
 540
 RUN YOUR CODE
 16
@@ -697,9 +697,9 @@ RUN YOUR CODE
 1
 
 TEXTBOX
-30
+10
 410
-215
+195
 428
 SETUP SCREEN ROBOTS
 16
@@ -707,9 +707,9 @@ SETUP SCREEN ROBOTS
 1
 
 BUTTON
-970
+945
 440
-1090
+1065
 485
 Take a Photo
 take-a-photo
@@ -724,9 +724,9 @@ NIL
 1
 
 BUTTON
-970
+945
 495
-1090
+1065
 530
 Save World State
 save-world-state
@@ -741,9 +741,9 @@ NIL
 1
 
 BUTTON
-970
+945
 535
-1090
+1065
 570
 Load a World State
 load-world-state
@@ -758,9 +758,9 @@ NIL
 1
 
 BUTTON
-965
+940
 335
-1085
+1060
 368
 Move a Robot
 move-a-robot
@@ -775,9 +775,9 @@ NIL
 1
 
 BUTTON
-305
+280
 525
-460
+435
 585
 NIL
 run-for-physical-robot
@@ -792,9 +792,9 @@ NIL
 1
 
 INPUTBOX
-595
+570
 525
-705
+680
 585
 color-sensor-LEFT
 6
@@ -803,9 +803,9 @@ color-sensor-LEFT
 Number
 
 INPUTBOX
-710
+685
 525
-820
+795
 585
 color-sensor-RIGHT
 7
@@ -814,9 +814,9 @@ color-sensor-RIGHT
 Number
 
 INPUTBOX
-465
+440
 525
-580
+555
 585
 bump-sensor-LEFT
 2
@@ -825,9 +825,9 @@ bump-sensor-LEFT
 Number
 
 INPUTBOX
-835
+810
 525
-950
+925
 585
 bump-sensor-RIGHT
 3
@@ -836,9 +836,9 @@ bump-sensor-RIGHT
 Number
 
 TEXTBOX
-970
+945
 395
-1065
+1040
 431
 CAPTURE / RECORD
 16
@@ -846,9 +846,9 @@ CAPTURE / RECORD
 1
 
 INPUTBOX
-245
+220
 385
-460
+435
 520
 when-there-is-no-event
 right-wheel-forward 1\nleft-wheel-forward 1\n;\n;
