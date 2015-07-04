@@ -10,9 +10,16 @@ globals [ runtime-context background-color line-color wall-color  mouse-was-down
 breed [ robots robot ]
 breed [ blocks block ]
 breed [ lights light ]
+breed [ physical-robots physical-robot ]
 
 patches-own [ lumens unlit-color colorable]
 
+to startup
+  create-physical-robots 1
+  [
+     ht 
+  ]
+end
 to setup-robots
   ca
   set background-color 3
@@ -68,17 +75,19 @@ end
 to run-for-physical-robot
   setup-gpio-pins
   set runtime-context "physical"
-  let normal true
   
-  if gpio:digital-read color-sensor-LEFT  > gpio:digital-read color-sensor-RIGHT [ set normal false  run right-color-darker-than-left ]
-  if gpio:digital-read color-sensor-RIGHT >  gpio:digital-read color-sensor-LEFT [ set normal false  run left-color-darker-than-right ]
-  
-  
-  if gpio:digital-read bump-sensor-LEFT  = 0 [ set normal false  run contact-with-left-bump-sensor ]
-  if gpio:digital-read bump-sensor-RIGHT = 0 [ set normal false  run contact-with-right-bump-sensor ]
-  
-  ;;OUR ROBOTS DON'T HAVE A LIGHT SENSOR
-  if (normal) [ run when-there-is-no-event ]
+  ask one-of physical-robots [
+    let normal true
+    
+    if gpio:digital-read color-sensor-LEFT  > gpio:digital-read color-sensor-RIGHT [ set normal false  run right-color-darker-than-left ]
+    if gpio:digital-read color-sensor-RIGHT >  gpio:digital-read color-sensor-LEFT [ set normal false  run left-color-darker-than-right ]
+    
+    if gpio:digital-read bump-sensor-LEFT  = 0 [ set normal false  run contact-with-left-bump-sensor ]
+    if gpio:digital-read bump-sensor-RIGHT = 0 [ set normal false  run contact-with-right-bump-sensor ]
+    
+    ;;OUR ROBOTS DON'T HAVE A LIGHT SENSOR
+    if (normal) [ run when-there-is-no-event ]
+  ]
 end
 
 to setup-gpio-pins
@@ -102,6 +111,8 @@ to setup-gpio-pins
   set feedback gpio:pwm-set-level 10 80
   ]
   [ show error-message ]
+  
+  if not any? physical-robots [ create-physical-robots 1 [ ht ] ]
 end
 
 
@@ -281,12 +292,13 @@ to-report is-contact-with-right-bump-sensor
   report [unlit-color] of patch-right-and-ahead 45 1 = wall-color
 end
 
-
+  
 ;;;WHEEL MOVEMENT CONTROLS.
 to right-wheel-forward [ speed ]
   ifelse (runtime-context = "screen")
   [
-    repeat speed [
+    repeat speed
+    [
       forward .01
       right .1 
       display
@@ -410,11 +422,11 @@ end
 GRAPHICS-WINDOW
 440
 10
-931
-522
+908
+499
 25
 25
-9.45
+9.0
 1
 10
 1
@@ -469,9 +481,9 @@ String (commands)
 
 INPUTBOX
 220
-145
+140
 435
-250
+245
 left-color-darker-than-right
 ;right-wheel-forward 1\nright-wheel-backward 2\nleft-wheel-forward 2\n;left-wheel-backward 1
 1
@@ -491,9 +503,9 @@ String (commands)
 
 INPUTBOX
 220
-255
+245
 435
-380
+370
 contact-with-left-bump-sensor
 ;right-wheel-forward 1\nleft-wheel-backward 20\nright-wheel-forward 10\nright-wheel-backward 15 
 1
@@ -502,9 +514,9 @@ String (commands)
 
 BUTTON
 60
-485
+470
 215
-545
+525
 NIL
 run-for-screen-robots
 T
@@ -519,9 +531,9 @@ NIL
 
 BUTTON
 10
-435
+420
 75
-468
+453
 setup
 setup-robots
 NIL
@@ -536,9 +548,9 @@ NIL
 
 SLIDER
 80
-435
+420
 215
-468
+453
 howmany-robots
 howmany-robots
 1
@@ -550,9 +562,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-940
+915
 60
-1060
+1035
 93
 Draw a Line
 draw-lines
@@ -567,9 +579,9 @@ NIL
 1
 
 BUTTON
-940
+915
 150
-1060
+1035
 183
 Draw a Wall
 draw-walls
@@ -584,9 +596,9 @@ NIL
 1
 
 BUTTON
-940
+915
 95
-1060
+1035
 128
 Erase a Line
 erase-lines
@@ -601,9 +613,9 @@ NIL
 1
 
 BUTTON
-940
+915
 185
-1060
+1035
 218
 Erase a Wall
 erase-walls
@@ -618,9 +630,9 @@ NIL
 1
 
 BUTTON
-940
+915
 240
-1060
+1035
 273
 Place a Light
 place-lights
@@ -635,9 +647,9 @@ NIL
 1
 
 BUTTON
-940
+915
 275
-1060
+1035
 308
 Remove a Light
 remove-lights
@@ -653,9 +665,9 @@ NIL
 
 SLIDER
 10
-550
+530
 215
-583
+563
 delay
 delay
 0
@@ -667,9 +679,9 @@ sec
 HORIZONTAL
 
 TEXTBOX
-940
+915
 10
-1075
+1050
 50
 DESIGN VIRTUAL ENVIRONMENT
 16
@@ -688,9 +700,9 @@ PROGRAM YOUR SCREEN & PHYSICAL ROBOTS
 
 TEXTBOX
 10
-480
+465
 60
-540
+525
 RUN YOUR CODE
 16
 123.0
@@ -698,19 +710,19 @@ RUN YOUR CODE
 
 TEXTBOX
 10
-410
+395
 205
-428
+413
 SETUP SCREEN ROBOTS
 16
 123.0
 1
 
 BUTTON
-945
-440
-1065
-485
+920
+425
+1040
+470
 Take a Photo
 take-a-photo
 NIL
@@ -724,10 +736,10 @@ NIL
 1
 
 BUTTON
-945
-495
-1065
-530
+920
+480
+1040
+515
 Save World State
 save-world-state
 NIL
@@ -741,10 +753,10 @@ NIL
 1
 
 BUTTON
-945
-535
-1065
-570
+920
+520
+1040
+555
 Load a World State
 load-world-state
 NIL
@@ -758,10 +770,10 @@ NIL
 1
 
 BUTTON
-940
-335
-1060
-368
+915
+325
+1035
+358
 Move a Robot
 move-a-robot
 T
@@ -776,9 +788,9 @@ NIL
 
 BUTTON
 280
-525
+505
 435
-585
+560
 NIL
 run-for-physical-robot
 T
@@ -792,10 +804,10 @@ NIL
 1
 
 INPUTBOX
-570
-525
-680
-585
+565
+500
+675
+560
 color-sensor-LEFT
 6
 1
@@ -803,10 +815,10 @@ color-sensor-LEFT
 Number
 
 INPUTBOX
-685
-525
-795
-585
+675
+500
+785
+560
 color-sensor-RIGHT
 7
 1
@@ -815,9 +827,9 @@ Number
 
 INPUTBOX
 440
-525
+500
 555
-585
+560
 bump-sensor-LEFT
 2
 1
@@ -825,10 +837,10 @@ bump-sensor-LEFT
 Number
 
 INPUTBOX
-810
-525
-925
-585
+795
+500
+910
+560
 bump-sensor-RIGHT
 3
 1
@@ -836,10 +848,10 @@ bump-sensor-RIGHT
 Number
 
 TEXTBOX
-945
-395
-1040
-431
+920
+380
+1015
+416
 CAPTURE / RECORD
 16
 123.0
@@ -847,9 +859,9 @@ CAPTURE / RECORD
 
 INPUTBOX
 220
-385
+365
 435
-520
+500
 when-there-is-no-event
 right-wheel-forward 1\nleft-wheel-forward 1\n;\n;
 1
@@ -1229,7 +1241,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
