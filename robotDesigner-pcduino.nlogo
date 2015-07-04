@@ -492,7 +492,7 @@ INPUTBOX
 420
 370
 contact-with-right-bump-sensor
-;right-wheel-forward 1\nright-wheel-backward 2\n;left-wheel-forward 1\nleft-wheel-backward 5 
+;right-wheel-forward 1\nright-wheel-backward 20\nleft-wheel-forward 10\nleft-wheel-backward 15 
 1
 0
 String (commands)
@@ -503,7 +503,7 @@ INPUTBOX
 630
 370
 contact-with-left-bump-sensor
-;right-wheel-forward 1\nleft-wheel-backward 2\n;right-wheel-forward 1\nright-wheel-backward 5 
+;right-wheel-forward 1\nleft-wheel-backward 20\nright-wheel-forward 10\nright-wheel-backward 15 
 1
 0
 String (commands)
@@ -668,7 +668,7 @@ delay
 delay
 0
 .005
-0
+7.0E-4
 .0001
 1
 sec
@@ -752,7 +752,7 @@ BUTTON
 1110
 465
 1230
-496
+498
 Load a World
 load-world-state
 NIL
@@ -1247,7 +1247,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
