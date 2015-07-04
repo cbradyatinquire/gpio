@@ -83,7 +83,7 @@ to run-for-physical-robot
     if gpio:digital-read color-sensor-RIGHT >  gpio:digital-read color-sensor-LEFT [ set normal false  run left-color-darker-than-right ]
     
     if gpio:digital-read bump-sensor-LEFT  = 0 [ set normal false  run contact-with-left-bump-sensor ]
-    if gpio:digital-read bump-sensor-RIGHT = 0 [ set normal false  run contact-with-right-bump-sensor ]
+    if gpio:digital-read bump-sensor-RIGHT = 1 [ set normal false  run contact-with-right-bump-sensor ]  ;;change back to 0-- i am using a button to simulate a bump sensor
     
     ;;OUR ROBOTS DON'T HAVE A LIGHT SENSOR
     if (normal) [ run when-there-is-no-event ]
@@ -306,7 +306,7 @@ to right-wheel-forward [ speed ]
   [
     gpio:digital-write right-back-pin "LOW"
     gpio:digital-write right-forward-pin "HIGH"
-    wait speed / 3
+    wait speed / 5
     gpio:digital-write right-forward-pin "LOW"
   ]
 end
@@ -322,7 +322,7 @@ to right-wheel-backward [ speed ]
   [
     gpio:digital-write right-forward-pin "LOW"
     gpio:digital-write right-back-pin  "HIGH"
-    wait speed / 3
+    wait speed / 5
     gpio:digital-write right-back-pin "LOW"
   ]
 end
@@ -338,7 +338,7 @@ to left-wheel-forward [ speed ]
   [
     gpio:digital-write left-back-pin "LOW"
     gpio:digital-write left-forward-pin "HIGH"
-    wait speed / 3
+    wait speed / 5
     gpio:digital-write left-forward-pin "LOW"
   ]
 end
@@ -354,7 +354,7 @@ to left-wheel-backward [ speed ]
   [
     gpio:digital-write left-forward-pin "LOW"
     gpio:digital-write left-back-pin  "HIGH"
-    wait speed / 3
+    wait speed / 5
     gpio:digital-write left-back-pin "LOW"
   ]
   
@@ -668,7 +668,7 @@ delay
 delay
 0
 .005
-7.0E-4
+0
 .0001
 1
 sec
@@ -800,20 +800,20 @@ NIL
 1
 
 INPUTBOX
-45
+10
 185
-155
+120
 245
 color-sensor-LEFT
-6
+3
 1
 0
 Number
 
 INPUTBOX
-45
+10
 245
-155
+120
 305
 color-sensor-RIGHT
 7
@@ -822,23 +822,23 @@ color-sensor-RIGHT
 Number
 
 INPUTBOX
-45
+10
 120
-155
+120
 180
 bump-sensor-LEFT
-2
+1
 1
 0
 Number
 
 INPUTBOX
-45
+10
 310
-155
+120
 370
 bump-sensor-RIGHT
-3
+6
 1
 0
 Number
@@ -873,6 +873,50 @@ PHYSICAL ROBOT CONFIGURATION
 16
 123.0
 1
+
+MONITOR
+120
+125
+177
+176
+NOW:
+gpio:digital-read bump-sensor-LEFT
+0
+1
+13
+
+MONITOR
+120
+190
+177
+241
+NOW:
+gpio:digital-read color-sensor-LEFT
+0
+1
+13
+
+MONITOR
+120
+250
+177
+301
+NOW:
+gpio:digital-read color-sensor-RIGHT
+0
+1
+13
+
+MONITOR
+120
+315
+177
+366
+NOW:
+gpio:digital-read bump-sensor-RIGHT
+0
+1
+13
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1247,7 +1291,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
