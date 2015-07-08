@@ -1,4 +1,5 @@
-globals [ mouse-was-down analog-reading-patches analogs digital-reading-patches digitals digital-mode-patches digital-modes ] 
+globals [ mouse-was-down analog-reading-patches analogs digital-reading-patches digitals digital-mode-patches digital-modes 
+  opwm3 opwm5 opwm6 opwm9 opwm10 opwm11 pwm-pin-nums pwm-reading-patches pwm-mode-patches ] 
 
 patches-own [ pin-id pin-num]
 
@@ -15,11 +16,26 @@ to setup
   
   ask patches [ set pin-id "" set pin-num -1 ]
   setup-digitals
-  setup-analogs
-  
+  setup-analogs  
+  setup-pwms  
   reset-ticks
 end
 
+to setup-pwms
+  set pwm-pin-nums [ 3 5 6 9 10 11 ]
+  set pwm-reading-patches []
+  set pwm-mode-patches []
+  set opwm3 pwm-level3
+  set opwm5 pwm-level5
+  set opwm6 pwm-level6
+  set opwm9 pwm-level9
+  set opwm10 pwm-level10
+  set opwm11 pwm-level11
+  foreach pwm-pin-nums [
+    set pwm-reading-patches lput item ? digital-reading-patches pwm-reading-patches
+    set pwm-mode-patches lput item ? digital-mode-patches pwm-mode-patches
+  ]
+end
 
 to setup-digitals
   set digital-reading-patches []
@@ -154,6 +170,16 @@ to update
    set i i + 1 
   ]
   
+  foreach pwm-pin-nums
+  [
+    let cval runresult (word "pwm-level" ?)
+    if cval != runresult (word "opwm" ?)
+    [
+     set digitals replace-item ? digitals cval
+     set digital-modes replace-item ? digital-modes "PWM"
+     run (word "set opwm" ? " " cval) 
+    ]
+  ]
   check-mouse
 end
 
@@ -172,6 +198,7 @@ to check-mouse
           ask clicked-patch [ 
             ifelse plabel = "WRITE" [ set plabel "READ" ] [set plabel "WRITE" ] 
             set digital-modes replace-item (pin-num) (digital-modes) plabel
+            if item pin-num digitals > 1 [ set digitals replace-item pin-num digitals 0 ]
           ]
           
         ]
@@ -198,9 +225,9 @@ GRAPHICS-WINDOW
 11
 10
 957
-449
+401
 19
-8
+7
 24.0
 1
 11
@@ -213,8 +240,8 @@ GRAPHICS-WINDOW
 1
 -19
 19
--8
-8
+-7
+7
 0
 0
 1
@@ -222,10 +249,10 @@ ticks
 30.0
 
 BUTTON
-326
-205
-532
-281
+310
+175
+516
+251
 UPDATE
 update
 T
@@ -236,7 +263,97 @@ NIL
 NIL
 NIL
 NIL
+0
+
+SLIDER
+180
+405
+213
+517
+pwm-level3
+pwm-level3
+0
+100
+50
 1
+1
+NIL
+VERTICAL
+
+SLIDER
+275
+405
+308
+517
+pwm-level5
+pwm-level5
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+325
+405
+358
+517
+pwm-level6
+pwm-level6
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+515
+405
+548
+517
+pwm-level9
+pwm-level9
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+565
+405
+598
+517
+pwm-level10
+pwm-level10
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+615
+405
+648
+517
+pwm-level11
+pwm-level11
+0
+100
+50
+1
+1
+NIL
+VERTICAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -599,5 +716,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
