@@ -1,275 +1,236 @@
-extensions [ gpio ]
+globals [ mouse-was-down analog-reading-patches analogs digital-reading-patches digitals digital-mode-patches digital-modes 
+  opwm3 opwm5 opwm6 opwm9 opwm10 opwm11 pwm-pin-nums pwm-reading-patches pwm-mode-patches ] 
 
-
-globals [ selected input-ports output-ports power-in power-out
-  
-  digitals
-  analogs
-  last-level
-  strip
-  gopwm
-  run-text 
-  scale-frequencies
-  ]
-
-breed [ components component ]
-breed [ ports port ]
-
-components-own
-[
-  configuration-entries
-  configuration-prompts
-  configuration-options
-  colors
-  activation-action
-  unselected-color
-]
-
-ports-own [
- ADP
- id
- mode 
-]
-
-
-
-to test
-  if gpio:digital-read 6 = 0 [
-  let normal true
-  if gpio:digital-read 1 = 0 [
-    set normal false
-    gpio:digital-write 8 "HIGH"
-    wait .2
-    gpio:digital-write 8 "LOW"    
-  ]
-  
-  if normal [ gpio:digital-write 11 "HIGH"  gpio:digital-write 12 "HIGH" wait .1 gpio:digital-write 11 "LOW"  gpio:digital-write 12 "LOW"  ]
-  ]
-end
-  
-
-to setup-configurations 
-  set run-text "NOT RUNNING"
-  set-default-shape ports "square 2" 
-  set input-ports ["D0" "D1" "D2" "D3" "D4" "D5" "D6" "D7" "D8" "D9" "D10" "D11" "D12" "D13" ]
-  set output-ports ["D0" "D1" "D2" "D3" "D4" "D5" "D6" "D7" "D8" "D9" "D10" "D11" "D12" "D13" "A0" "A1" "A2" "A3" "A4" "A5"]
-  set power-in sentence ["3.3V" "5V" ] input-ports
-  set power-out [ "GND-1" "GND-2" "GND-3" ]
-  
-  set scale-frequencies [ 262 294 330 349 392 440 494 523 ]
-end
-
-to change-tone
-  show gpio:tone which-pwm frequency pwm-level  
-end
+patches-own [ pin-id pin-num]
 
 to startup
   setup
 end
 
-to run-circuit
-  set run-text "RUNNING"
-  update-runtext
-  if mouse-down? [ show (word "( " mouse-xcor ", " mouse-ycor ")") ]  
-  
-end
-
-to update-runtext
-  ask patch 42 18 [ set plabel run-text ]
-end
-
-to setup 
+to setup
   ca
-  ask patches [ set pcolor blue + 3.5 ]
+  set mouse-was-down false
+  set analogs n-values 6 [ random 100 ]
+  set digitals n-values 14 [ random 2 ]
+  set digital-modes n-values 14 [ "READ" ]
   
-  set selected nobody
-  setup-configurations
-  setup-components
-  
-  do-pins
-  set gopwm true
-  set digitals n-values 19 [ 0 ]
-  set analogs n-values 6 [ 0 ]
+  ask patches [ set pin-id "" set pin-num -1 ]
+  setup-digitals
+  setup-analogs  
+  setup-pwms  
   reset-ticks
-  parse gpio:all-info
 end
 
+to setup-pwms
+  set pwm-pin-nums [ 3 5 6 9 10 11 ]
+  set pwm-reading-patches []
+  set pwm-mode-patches []
+  set opwm3 pwm-level3
+  set opwm5 pwm-level5
+  set opwm6 pwm-level6
+  set opwm9 pwm-level9
+  set opwm10 pwm-level10
+  set opwm11 pwm-level11
+  foreach pwm-pin-nums [
+    set pwm-reading-patches lput item ? digital-reading-patches pwm-reading-patches
+    set pwm-mode-patches lput item ? digital-mode-patches pwm-mode-patches
+  ]
+end
 
-
-to setup-components
-  ;led
-  create-components 1 [ 
-    setxy min-pxcor + 2 0 
-    set size 3 
-    set shape "LED" set color gray 
-    set configuration-entries [ -1 -1 ]  
-    set configuration-prompts ["Power In" "Power Out"]
-    set configuration-options (list power-in power-out )
-    set unselected-color color
+to setup-digitals
+  set digital-reading-patches []
+  set  digital-mode-patches []
+  let yv -5 
+  let xleft min-pxcor + 1
+  let pnum 0
+  let xd 2
+  while [ pnum < 8 ]
+  [
+    ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "D" pnum " ")
+      set pcolor blue
+      set plabel pin-id
+      let reading-patch (patch-at 0 1)
+      let mode-patch (patch-at 0 -1)
+      ask reading-patch [ set pin-num pnum ]
+      ask mode-patch [ set pin-num pnum ]
+      set digital-reading-patches lput reading-patch digital-reading-patches
+      set digital-mode-patches lput mode-patch digital-mode-patches
+    ]
+    set pnum pnum + 1
+  ]
+  set xleft xleft + 2
+  while [ pnum < 14 ]
+  [
+     ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "D" pnum " ")
+      set pcolor blue
+      set plabel pin-id
+      let reading-patch (patch-at 0 1)
+      let mode-patch (patch-at 0 -1)
+      ask reading-patch [ set pin-num pnum ]
+      ask mode-patch [ set pin-num pnum ]
+      set digital-reading-patches lput (patch-at 0 1) digital-reading-patches
+      set digital-mode-patches lput (patch-at 0 -1) digital-mode-patches
+    ]
+    set pnum pnum + 1
   ]
   
+   ;;ground
+   ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "GND")
+      set pcolor violet
+      set plabel pin-id
+    ]
+  
+  let i 1
+  while [ i < 4 ] 
+  [
+    ask patch (xleft + xd * (pnum + i)) yv [ 
+      set pin-id "X  "
+      set pcolor gray - 2
+      set plabel pin-id
+    ]
+   set i i + 1
+  ]
 end
 
-
-
-to do-pins
-  import-drawing "pcd3.gif"
-  let xindex -5.16 + 5 * .85
-  let yindex 7.25
-  let num 0
-  repeat 6 [
-    create-ports 1 [set color lime set size .9 setxy xindex yindex set ADP "A" set id (word "A" num)]
-    set xindex xindex - .85
-    set num num + 1
+to setup-analogs
+  set analog-reading-patches []
+  let yv 5 
+  let xleft min-pxcor + 1
+  let pnum 0
+  let xd 2
+  while [ pnum < 6 ]
+  [
+    ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "A" pnum " ")
+      set pcolor sky
+      set plabel pin-id
+      set analog-reading-patches lput (patch-at 0 1) analog-reading-patches
+    ]
+    set pnum pnum + 1
   ]
-  set xindex .73 + .85
-  set yindex 7.2 
+  
+  set xleft xleft + 2
+  ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "X  " )
+      set pcolor gray - 2
+      set plabel pin-id
+    ]
+  set pnum pnum + 1
+  
   repeat 2 [
-    create-ports 1 [ set ADP "power" set id "GND" set color sky + 2 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  repeat 1 [
-    create-ports 1 [ set ADP "power" set id "5V" set color red + 1 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  repeat 1 [
-    create-ports 1 [ set ADP "power" set id "3.3V" set color orange + 1 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  
-  set xindex -5
-  set yindex -8.5
-  set num 0
-  repeat 8 [
-    create-ports 1 [ set ADP "D" set color yellow set size .9 setxy xindex yindex set id (word "D" num) ]
-    set xindex xindex + .85
-    set num num + 1
-  ]
-  
-  set xindex 2.1
-  set yindex -8.4
-  repeat 6 [
-    create-ports 1 [ set ADP "D" set color yellow set size .9 setxy xindex yindex set id (word "D" num) ]
-    set xindex xindex + .85
-    set num num + 1
-  ]
-  
-  repeat 1 [
-    create-ports 1 [ set ADP "power" set id "GND"  set color sky + 2 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  
-end
-
-
-
-to parse [ lists ]
-  set digitals item 0 lists
-  set analogs item 1 lists
-end
- 
-to refresh
-  parse gpio:all-info
-end
-
-to-report gpio [ n ]
-  report item n digitals
-end
-
-to-report adc [ n ]
-  report item n analogs
-end
-
-
-
-
-
-
-to mouse-interact
-  ifelse (mouse-down? )  [
-    if (selected = nobody) [
-      set selected get-selection
+    ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "GND" )
+      set pcolor violet
+      set plabel pin-id
     ]
-    if (selected != nobody)
-    [
-      ask selected [
-        set color lime 
-        setxy mouse-xcor mouse-ycor 
-      ]
-    ]
-    
+    set pnum pnum + 1
   ]
+  
+  ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "5V " )
+      set pcolor red
+      set plabel pin-id
+    ]
+  set pnum pnum + 1
+  
+  ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "3.3V" )
+      set pcolor red
+      set plabel pin-id
+    ]
+  set pnum pnum + 1
+  
+  repeat 3 [
+    ask patch (xleft + xd * pnum) yv [ 
+      set pin-id (word "X  ")
+      set pcolor gray - 2
+      set plabel pin-id
+    ]
+    set pnum pnum + 1
+  ]
+end
+
+
+to update
+  let i 0
+  while [ i < length analogs ]
   [
-    if selected != nobody [ ask selected [ set color unselected-color ] ]
-    set selected nobody
+   ask item i analog-reading-patches [ set plabel (word item i analogs) ] 
+   set i i + 1
   ]
+  
+  set i 0
+  while [ i < length digitals ]
+  [
+   ask item i digital-reading-patches [ set plabel (word item i digitals) ]
+   ask item i digital-mode-patches [ set plabel (word item i digital-modes) ]
+   set i i + 1 
+  ]
+  
+  foreach pwm-pin-nums
+  [
+    let cval runresult (word "pwm-level" ?)
+    if cval != runresult (word "opwm" ?)
+    [
+     set digitals replace-item ? digitals cval
+     set digital-modes replace-item ? digital-modes "PWM"
+     run (word "set opwm" ? " " cval) 
+    ]
+  ]
+  check-mouse
 end
 
-to mouse-execute
-  ifelse (mouse-down? )  [
-    if (selected = nobody) [
-      set selected get-selection
-    ]
-    if (selected != nobody)
-    [
-      ask selected [
-        set color red 
-        user-message "executed"
-        set color blue
-      ]
-      set selected nobody
-      
-    ]
-  ]
-  [
-    set selected nobody
-  ]
-end
 
-to mouse-configure
-  ifelse (mouse-down? )  
+to check-mouse
+  ifelse mouse-down?
   [
-    if (selected = nobody) 
+    if (not mouse-was-down)
     [
-      set selected get-selection
-    ]
-    if (selected != nobody)
-    [
-      ask selected [
-        let ocolor color
-        set color orange 
-        let i 0
-        foreach configuration-prompts [
+      set mouse-was-down true
+      let clicked-patch patch mouse-xcor mouse-ycor 
+      if clicked-patch != nobody
+      [
+        if member? clicked-patch digital-mode-patches
+        [
+          ask clicked-patch [ 
+            ifelse plabel = "WRITE" [ set plabel "READ" ] [set plabel "WRITE" ] 
+            set digital-modes replace-item (pin-num) (digital-modes) plabel
+            if item pin-num digitals > 1 [ set digitals replace-item pin-num digitals 0 ]
+          ]
           
-          let entry user-one-of ? item i configuration-options
-          set configuration-entries replace-item i configuration-entries entry
-          set i i + 1
         ]
-        set color ocolor
-      ]
-      set selected nobody
+        if member? clicked-patch digital-reading-patches
+        [
+          ask clicked-patch [ 
+            let mode-patch patch-at 0 -2
+            if [plabel] of mode-patch = "WRITE"
+            [
+              ifelse read-from-string plabel = 0 [ set plabel 1 ] [ set plabel 0 ] 
+              set digitals replace-item pin-num digitals plabel
+            ]
+          ]
+        ]
+      ];nobody check
     ]
-  ]
+  ]; mouse-down
   [
-    set selected nobody
+   set mouse-was-down false 
   ]
-end
-
-
-to-report get-selection
-  report min-one-of components with [distancexy mouse-xcor mouse-ycor < 1.7] [distancexy mouse-xcor mouse-ycor]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-140
-90
-1000
-531
-42
-20
-10.0
+11
+10
+957
+401
+19
+7
+24.0
 1
-40
+11
 1
 1
 1
@@ -277,10 +238,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--42
-42
--20
-20
+-19
+19
+-7
+7
 0
 0
 1
@@ -288,300 +249,12 @@ ticks
 30.0
 
 BUTTON
-935
-550
-1075
-583
-NIL
-mouse-interact
-T
-1
-T
-OBSERVER
-NIL
-I
-NIL
-NIL
-1
-
-BUTTON
-935
-626
-1075
-659
-NIL
-mouse-execute
-T
-1
-T
-OBSERVER
-NIL
-E
-NIL
-NIL
-1
-
-BUTTON
-935
-588
-1075
-621
-NIL
-mouse-configure
-T
-1
-T
-OBSERVER
-NIL
-C
-NIL
-NIL
-1
-
-MONITOR
-240
-550
-290
-595
-NIL
-gpio 1
-17
-1
-11
-
-MONITOR
-190
-550
-240
-595
-NIL
-gpio 0
-17
-1
-11
-
-MONITOR
-290
-550
-340
-595
-NIL
-gpio 2
-17
-1
-11
-
-MONITOR
-340
-550
-390
-595
-NIL
-gpio 3
-17
-1
-11
-
-MONITOR
-390
-550
-440
-595
-NIL
-gpio 4
-17
-1
-11
-
-MONITOR
-440
-550
-490
-595
-NIL
-gpio 5
-17
-1
-11
-
-MONITOR
-490
-550
-540
-595
-NIL
-gpio 6
-17
-1
-11
-
-MONITOR
-540
-550
-590
-595
-NIL
-gpio 7
-17
-1
-11
-
-MONITOR
-610
-550
-660
-595
-NIL
-gpio 8
-17
-1
-11
-
-MONITOR
-660
-550
-710
-595
-NIL
-gpio 9
-17
-1
-11
-
-MONITOR
-710
-550
-760
-595
-NIL
-gpio 10
-17
-1
-11
-
-MONITOR
-760
-550
-810
-595
-NIL
-gpio 11
-17
-1
-11
-
-MONITOR
-810
-550
-860
-595
-NIL
-gpio 12
-17
-1
-11
-
-MONITOR
-860
-550
-910
-595
-NIL
-gpio 13
-17
-1
-11
-
-MONITOR
-570
-40
-645
-85
-NIL
-adc 0
-17
-1
-11
-
-MONITOR
-495
-40
-570
-85
-NIL
-adc 1
-17
-1
-11
-
-MONITOR
-420
-40
-495
-85
-NIL
-adc 2
-17
-1
-11
-
-MONITOR
-345
-40
-420
-85
-NIL
-adc 3
-17
-1
-11
-
-MONITOR
-270
-40
-345
-85
-NIL
-adc 4
-17
-1
-11
-
-MONITOR
-195
-40
-270
-85
-NIL
-adc 5
-17
-1
-11
-
-BUTTON
-5
-10
-120
-43
-NIL
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-5
-45
-120
-78
+310
+175
+516
+251
+UPDATE
 update
-refresh
 T
 1
 T
@@ -590,240 +263,97 @@ NIL
 NIL
 NIL
 NIL
-1
-
-BUTTON
-10
-490
-125
-523
-change PWM
-ifelse (gopwm) \n[every .1\n[\n if (pwm-level != last-level) [\n show gpio:pwm-set-level which-pwm pwm-level\n set last-level pwm-level\n ]\n ]\n ]\n [\n set gopwm true\n stop\n ]
-T
-1
-T
-OBSERVER
-NIL
-P
-NIL
-NIL
-1
+0
 
 SLIDER
-10
-575
-170
-608
-pwm-level
-pwm-level
+180
+405
+213
+517
+pwm-level3
+pwm-level3
 0
 100
-<<<<<<< HEAD
-62
-=======
-60
->>>>>>> b1a3abb5d8c61a2b73374e906624ef6ad96d31bc
+50
 1
 1
-percent
-HORIZONTAL
+NIL
+VERTICAL
 
-BUTTON
-10
+SLIDER
+275
+405
+308
+517
+pwm-level5
+pwm-level5
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+325
+405
+358
+517
+pwm-level6
+pwm-level6
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+515
+405
+548
+517
+pwm-level9
+pwm-level9
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+565
+405
+598
+517
+pwm-level10
+pwm-level10
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
 615
-125
+405
 648
-pwm power off
-set gopwm false\nshow gpio:pwm-rest which-pwm\n
-NIL
-1
-T
-OBSERVER
-NIL
-O
-NIL
-NIL
-1
-
-SLIDER
-190
-595
-905
-628
-digital-pin
-digital-pin
+517
+pwm-level11
+pwm-level11
 0
-13
-0
+100
+50
 1
 1
 NIL
-HORIZONTAL
-
-BUTTON
-455
-630
-597
-663
-Set Pin to Write
-gpio:set-mode digital-pin \"WRITE\"\nrefresh
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-265
-630
-407
-663
-Set Pin to READ
-gpio:set-mode digital-pin \"READ\"\nrefresh
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-620
-630
-742
-663
-Pull Pin HIGH
-gpio:digital-write digital-pin \"HIGH\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-750
-630
-865
-663
-Pull Pin LOW
-gpio:digital-write digital-pin \"LOW\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-CHOOSER
-10
-530
-125
-575
-which-pwm
-which-pwm
-3 5 6 9 10 11
-<<<<<<< HEAD
-1
-=======
-4
->>>>>>> b1a3abb5d8c61a2b73374e906624ef6ad96d31bc
-
-BUTTON
-900
-115
-997
-155
-NIL
-run-circuit
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-5
-355
-140
-388
-frequency
-frequency
-2
-900
-523
-1
-1
-hz
-HORIZONTAL
-
-BUTTON
-15
-410
-137
-443
-change tone
-change-tone
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-30
-300
-132
-333
-play scale
-foreach scale-frequencies [\nset frequency ?\nchange-tone\nwait .5 \n]\nshow gpio:pwm-rest which-pwm
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1038
-225
-1102
-259
-NIL
-test
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+VERTICAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -876,17 +406,6 @@ arrow
 true
 0
 Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
-
-balloon
-false
-0
-Circle -7500403 true true 73 0 152
-Polygon -7500403 true true 219 104 205 133 185 165 174 190 165 210 165 225 150 225 147 119
-Polygon -7500403 true true 79 103 95 133 115 165 126 190 135 210 135 225 150 225 154 120
-Rectangle -6459832 true false 129 241 173 273
-Line -16777216 false 135 225 135 240
-Line -16777216 false 165 225 165 240
-Line -16777216 false 150 225 150 240
 
 box
 false
@@ -1028,17 +547,6 @@ false
 0
 Polygon -7500403 true true 150 210 135 195 120 210 60 210 30 195 60 180 60 165 15 135 30 120 15 105 40 104 45 90 60 90 90 105 105 120 120 120 105 60 120 60 135 30 150 15 165 30 180 60 195 60 180 120 195 120 210 105 240 90 255 90 263 104 285 105 270 120 285 135 240 165 240 180 270 195 240 210 180 210 165 195
 Polygon -7500403 true true 135 195 135 240 120 255 105 255 105 285 135 285 165 240 165 195
-
-led
-false
-0
-Circle -7500403 true true 73 0 152
-Polygon -7500403 true true 219 104 205 133 185 165 174 190 165 210 165 225 150 225 147 119
-Polygon -7500403 true true 79 103 95 133 115 165 126 190 135 210 135 225 150 225 154 120
-Rectangle -6459832 true false 129 241 173 273
-Line -16777216 false 135 225 135 240
-Line -16777216 false 165 225 165 240
-Line -16777216 false 150 225 150 240
 
 line
 true
@@ -1190,7 +698,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

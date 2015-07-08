@@ -1,275 +1,119 @@
 extensions [ gpio ]
 
+globals [ zerorow fourzeros CLK_PIN CS_PIN DIN_PIN]
 
-globals [ selected input-ports output-ports power-in power-out
-  
-  digitals
-  analogs
-  last-level
-  strip
-  gopwm
-  run-text 
-  scale-frequencies
-  ]
-
-breed [ components component ]
-breed [ ports port ]
-
-components-own
-[
-  configuration-entries
-  configuration-prompts
-  configuration-options
-  colors
-  activation-action
-  unselected-color
-]
-
-ports-own [
- ADP
- id
- mode 
-]
-
-
-
-to test
-  if gpio:digital-read 6 = 0 [
-  let normal true
-  if gpio:digital-read 1 = 0 [
-    set normal false
-    gpio:digital-write 8 "HIGH"
-    wait .2
-    gpio:digital-write 8 "LOW"    
-  ]
-  
-  if normal [ gpio:digital-write 11 "HIGH"  gpio:digital-write 12 "HIGH" wait .1 gpio:digital-write 11 "LOW"  gpio:digital-write 12 "LOW"  ]
-  ]
-end
-  
-
-to setup-configurations 
-  set run-text "NOT RUNNING"
-  set-default-shape ports "square 2" 
-  set input-ports ["D0" "D1" "D2" "D3" "D4" "D5" "D6" "D7" "D8" "D9" "D10" "D11" "D12" "D13" ]
-  set output-ports ["D0" "D1" "D2" "D3" "D4" "D5" "D6" "D7" "D8" "D9" "D10" "D11" "D12" "D13" "A0" "A1" "A2" "A3" "A4" "A5"]
-  set power-in sentence ["3.3V" "5V" ] input-ports
-  set power-out [ "GND-1" "GND-2" "GND-3" ]
-  
-  set scale-frequencies [ 262 294 330 349 392 440 494 523 ]
-end
-
-to change-tone
-  show gpio:tone which-pwm frequency pwm-level  
-end
-
-to startup
-  setup
-end
-
-to run-circuit
-  set run-text "RUNNING"
-  update-runtext
-  if mouse-down? [ show (word "( " mouse-xcor ", " mouse-ycor ")") ]  
-  
-end
-
-to update-runtext
-  ask patch 42 18 [ set plabel run-text ]
-end
-
-to setup 
+to setup
   ca
-  ask patches [ set pcolor blue + 3.5 ]
-  
-  set selected nobody
-  setup-configurations
-  setup-components
-  
-  do-pins
-  set gopwm true
-  set digitals n-values 19 [ 0 ]
-  set analogs n-values 6 [ 0 ]
+  set zerorow n-values 8 [ 0 ]
+  set fourzeros n-values 4 [ 0 ]
+  setup-pins
   reset-ticks
-  parse gpio:all-info
 end
 
-
-
-to setup-components
-  ;led
-  create-components 1 [ 
-    setxy min-pxcor + 2 0 
-    set size 3 
-    set shape "LED" set color gray 
-    set configuration-entries [ -1 -1 ]  
-    set configuration-prompts ["Power In" "Power Out"]
-    set configuration-options (list power-in power-out )
-    set unselected-color color
-  ]
+to setup-pins
+  set CLK_PIN 10
+  set CS_PIN 9
+  set DIN_PIN 8
   
+  gpio:set-mode CLK_PIN "WRITE"
+  gpio:set-mode CS_PIN  "WRITE"
+  gpio:set-mode DIN_PIN "WRITE"
+  
+  init-matrix
 end
 
+to init-matrix
+  write-list (pad binary-list-for-hex-digit-string "9" )  (sentence fourzeros fourzeros)
+  write-list (pad binary-list-for-hex-digit-string "A" )  (pad binary-list-for-hex-digit-string "3" )
+  write-list (pad binary-list-for-hex-digit-string "B" )  (pad binary-list-for-hex-digit-string "7" )
+  write-list (pad binary-list-for-hex-digit-string "C" )  (pad binary-list-for-hex-digit-string "1" )
+  write-list (pad binary-list-for-hex-digit-string "F" )  (sentence fourzeros fourzeros)
+end
 
+to write-byte [ binlist ]
+  show (word "attempting to write " binlist)
+  gpio:digital-write CS_PIN "LOW"
+  let index 0
+  while [ index < 8 ]
+  [
+    gpio:digital-write CLK_PIN "LOW"
+    ifelse ( item index binlist = 1 )
+    [ gpio:digital-write DIN_PIN "HIGH" ]
+    [ gpio:digital-write DIN_PIN "LOW" ]
+    gpio:digital-write CLK_PIN "HIGH"
+    set index index + 1
+  ]
+end
 
-to do-pins
-  import-drawing "pcd3.gif"
-  let xindex -5.16 + 5 * .85
-  let yindex 7.25
+to write-list [ adlist datlist]
+  gpio:digital-write CS_PIN "LOW"
+  write-byte adlist
+  write-byte datlist
+  gpio:digital-write CS_PIN "HIGH"
+end
+
+;reports a 4-elment binary list, most significant digit first. [maybe should be most-sig?]
+to-report binary-list-for-hex-digit-string [ hdigit ]
+  let num num-for-hex-digit-string hdigit
+  let rlist n-values 4 [0]
+  let xponent 3
+  while [xponent >= 0]
+  [
+   let v floor ( num / (2 ^ xponent) )
+   ;show (word "for exponent = " xponent ", v = " v)
+   set rlist replace-item (3 - xponent) rlist v 
+   set num num - v * 2 ^ xponent
+   set xponent xponent - 1
+  ]
+  ;show (word "should be 0: " num)
+  report rlist
+end
+
+to-report num-for-hex-digit-string [ hdigit ]
   let num 0
-  repeat 6 [
-    create-ports 1 [set color lime set size .9 setxy xindex yindex set ADP "A" set id (word "A" num)]
-    set xindex xindex - .85
-    set num num + 1
+  if hdigit = "A" [ set num 10 ]
+  if hdigit = "B" [ set num 11 ]
+  if hdigit = "C" [ set num 12 ]
+  if hdigit = "D" [ set num 13 ]
+  if hdigit = "E" [ set num 14 ]
+  if hdigit = "F" [ set num 15 ]
+  if num = 0 [ 
+    carefully [ set num read-from-string hdigit ]
+    [ show error-message report 0 ]
   ]
-  set xindex .73 + .85
-  set yindex 7.2 
-  repeat 2 [
-    create-ports 1 [ set ADP "power" set id "GND" set color sky + 2 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  repeat 1 [
-    create-ports 1 [ set ADP "power" set id "5V" set color red + 1 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  repeat 1 [
-    create-ports 1 [ set ADP "power" set id "3.3V" set color orange + 1 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  
-  set xindex -5
-  set yindex -8.5
-  set num 0
-  repeat 8 [
-    create-ports 1 [ set ADP "D" set color yellow set size .9 setxy xindex yindex set id (word "D" num) ]
-    set xindex xindex + .85
-    set num num + 1
-  ]
-  
-  set xindex 2.1
-  set yindex -8.4
-  repeat 6 [
-    create-ports 1 [ set ADP "D" set color yellow set size .9 setxy xindex yindex set id (word "D" num) ]
-    set xindex xindex + .85
-    set num num + 1
-  ]
-  
-  repeat 1 [
-    create-ports 1 [ set ADP "power" set id "GND"  set color sky + 2 set size .9 setxy xindex yindex]
-    set xindex xindex + .85
-  ]
-  
+  report num
 end
 
-
-
-to parse [ lists ]
-  set digitals item 0 lists
-  set analogs item 1 lists
-end
- 
-to refresh
-  parse gpio:all-info
-end
-
-to-report gpio [ n ]
-  report item n digitals
-end
-
-to-report adc [ n ]
-  report item n analogs
-end
-
-
-
-
-
-
-to mouse-interact
-  ifelse (mouse-down? )  [
-    if (selected = nobody) [
-      set selected get-selection
-    ]
-    if (selected != nobody)
-    [
-      ask selected [
-        set color lime 
-        setxy mouse-xcor mouse-ycor 
-      ]
-    ]
-    
-  ]
+to send-horizontal-row [rownum alist]
+  let index 0
+  foreach ( n-values 8 [?] )
   [
-    if selected != nobody [ ask selected [ set color unselected-color ] ]
-    set selected nobody
-  ]
+    set index index + 1 ;row numbers begin with 1
+    ifelse index = rownum
+    [ write-list pad (binary-list-for-hex-digit-string (word index)) alist ]
+    [ write-list pad (binary-list-for-hex-digit-string (word index)) zerorow ]
+  ] 
 end
 
-to mouse-execute
-  ifelse (mouse-down? )  [
-    if (selected = nobody) [
-      set selected get-selection
-    ]
-    if (selected != nobody)
-    [
-      ask selected [
-        set color red 
-        user-message "executed"
-        set color blue
-      ]
-      set selected nobody
-      
-    ]
-  ]
+to-report pad [ alist ]
+  let blist alist
+  while [ length blist < 8 ]
   [
-    set selected nobody
+   set blist fput 0 blist 
   ]
-end
-
-to mouse-configure
-  ifelse (mouse-down? )  
-  [
-    if (selected = nobody) 
-    [
-      set selected get-selection
-    ]
-    if (selected != nobody)
-    [
-      ask selected [
-        let ocolor color
-        set color orange 
-        let i 0
-        foreach configuration-prompts [
-          
-          let entry user-one-of ? item i configuration-options
-          set configuration-entries replace-item i configuration-entries entry
-          set i i + 1
-        ]
-        set color ocolor
-      ]
-      set selected nobody
-    ]
-  ]
-  [
-    set selected nobody
-  ]
-end
-
-
-to-report get-selection
-  report min-one-of components with [distancexy mouse-xcor mouse-ycor < 1.7] [distancexy mouse-xcor mouse-ycor]
+  report blist
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-140
-90
-1000
-531
-42
-20
-10.0
+210
+10
+649
+470
+16
+16
+13.0
 1
-40
+10
 1
 1
 1
@@ -277,10 +121,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--42
-42
--20
-20
+-16
+16
+-16
+16
 0
 0
 1
@@ -288,534 +132,13 @@ ticks
 30.0
 
 BUTTON
-935
-550
-1075
-583
-NIL
-mouse-interact
-T
-1
-T
-OBSERVER
-NIL
-I
-NIL
-NIL
-1
-
-BUTTON
-935
-626
-1075
-659
-NIL
-mouse-execute
-T
-1
-T
-OBSERVER
-NIL
-E
-NIL
-NIL
-1
-
-BUTTON
-935
-588
-1075
-621
-NIL
-mouse-configure
-T
-1
-T
-OBSERVER
-NIL
-C
-NIL
-NIL
-1
-
-MONITOR
-240
-550
-290
-595
-NIL
-gpio 1
-17
-1
-11
-
-MONITOR
-190
-550
-240
-595
-NIL
-gpio 0
-17
-1
-11
-
-MONITOR
-290
-550
-340
-595
-NIL
-gpio 2
-17
-1
-11
-
-MONITOR
-340
-550
-390
-595
-NIL
-gpio 3
-17
-1
-11
-
-MONITOR
-390
-550
-440
-595
-NIL
-gpio 4
-17
-1
-11
-
-MONITOR
-440
-550
-490
-595
-NIL
-gpio 5
-17
-1
-11
-
-MONITOR
-490
-550
-540
-595
-NIL
-gpio 6
-17
-1
-11
-
-MONITOR
-540
-550
-590
-595
-NIL
-gpio 7
-17
-1
-11
-
-MONITOR
-610
-550
-660
-595
-NIL
-gpio 8
-17
-1
-11
-
-MONITOR
-660
-550
-710
-595
-NIL
-gpio 9
-17
-1
-11
-
-MONITOR
-710
-550
-760
-595
-NIL
-gpio 10
-17
-1
-11
-
-MONITOR
-760
-550
-810
-595
-NIL
-gpio 11
-17
-1
-11
-
-MONITOR
-810
-550
-860
-595
-NIL
-gpio 12
-17
-1
-11
-
-MONITOR
-860
-550
-910
-595
-NIL
-gpio 13
-17
-1
-11
-
-MONITOR
-570
-40
-645
-85
-NIL
-adc 0
-17
-1
-11
-
-MONITOR
-495
-40
-570
-85
-NIL
-adc 1
-17
-1
-11
-
-MONITOR
-420
-40
-495
-85
-NIL
-adc 2
-17
-1
-11
-
-MONITOR
-345
-40
-420
-85
-NIL
-adc 3
-17
-1
-11
-
-MONITOR
-270
-40
-345
-85
-NIL
-adc 4
-17
-1
-11
-
-MONITOR
-195
-40
-270
-85
-NIL
-adc 5
-17
-1
-11
-
-BUTTON
-5
-10
-120
-43
+48
+90
+121
+123
 NIL
 setup
 NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-5
-45
-120
-78
-update
-refresh
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-10
-490
-125
-523
-change PWM
-ifelse (gopwm) \n[every .1\n[\n if (pwm-level != last-level) [\n show gpio:pwm-set-level which-pwm pwm-level\n set last-level pwm-level\n ]\n ]\n ]\n [\n set gopwm true\n stop\n ]
-T
-1
-T
-OBSERVER
-NIL
-P
-NIL
-NIL
-1
-
-SLIDER
-10
-575
-170
-608
-pwm-level
-pwm-level
-0
-100
-<<<<<<< HEAD
-62
-=======
-60
->>>>>>> b1a3abb5d8c61a2b73374e906624ef6ad96d31bc
-1
-1
-percent
-HORIZONTAL
-
-BUTTON
-10
-615
-125
-648
-pwm power off
-set gopwm false\nshow gpio:pwm-rest which-pwm\n
-NIL
-1
-T
-OBSERVER
-NIL
-O
-NIL
-NIL
-1
-
-SLIDER
-190
-595
-905
-628
-digital-pin
-digital-pin
-0
-13
-0
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-455
-630
-597
-663
-Set Pin to Write
-gpio:set-mode digital-pin \"WRITE\"\nrefresh
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-265
-630
-407
-663
-Set Pin to READ
-gpio:set-mode digital-pin \"READ\"\nrefresh
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-620
-630
-742
-663
-Pull Pin HIGH
-gpio:digital-write digital-pin \"HIGH\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-750
-630
-865
-663
-Pull Pin LOW
-gpio:digital-write digital-pin \"LOW\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-CHOOSER
-10
-530
-125
-575
-which-pwm
-which-pwm
-3 5 6 9 10 11
-<<<<<<< HEAD
-1
-=======
-4
->>>>>>> b1a3abb5d8c61a2b73374e906624ef6ad96d31bc
-
-BUTTON
-900
-115
-997
-155
-NIL
-run-circuit
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-5
-355
-140
-388
-frequency
-frequency
-2
-900
-523
-1
-1
-hz
-HORIZONTAL
-
-BUTTON
-15
-410
-137
-443
-change tone
-change-tone
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-30
-300
-132
-333
-play scale
-foreach scale-frequencies [\nset frequency ?\nchange-tone\nwait .5 \n]\nshow gpio:pwm-rest which-pwm
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1038
-225
-1102
-259
-NIL
-test
-T
 1
 T
 OBSERVER
@@ -876,17 +199,6 @@ arrow
 true
 0
 Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
-
-balloon
-false
-0
-Circle -7500403 true true 73 0 152
-Polygon -7500403 true true 219 104 205 133 185 165 174 190 165 210 165 225 150 225 147 119
-Polygon -7500403 true true 79 103 95 133 115 165 126 190 135 210 135 225 150 225 154 120
-Rectangle -6459832 true false 129 241 173 273
-Line -16777216 false 135 225 135 240
-Line -16777216 false 165 225 165 240
-Line -16777216 false 150 225 150 240
 
 box
 false
@@ -1028,17 +340,6 @@ false
 0
 Polygon -7500403 true true 150 210 135 195 120 210 60 210 30 195 60 180 60 165 15 135 30 120 15 105 40 104 45 90 60 90 90 105 105 120 120 120 105 60 120 60 135 30 150 15 165 30 180 60 195 60 180 120 195 120 210 105 240 90 255 90 263 104 285 105 270 120 285 135 240 165 240 180 270 195 240 210 180 210 165 195
 Polygon -7500403 true true 135 195 135 240 120 255 105 255 105 285 135 285 165 240 165 195
-
-led
-false
-0
-Circle -7500403 true true 73 0 152
-Polygon -7500403 true true 219 104 205 133 185 165 174 190 165 210 165 225 150 225 147 119
-Polygon -7500403 true true 79 103 95 133 115 165 126 190 135 210 135 225 150 225 154 120
-Rectangle -6459832 true false 129 241 173 273
-Line -16777216 false 135 225 135 240
-Line -16777216 false 165 225 165 240
-Line -16777216 false 150 225 150 240
 
 line
 true
@@ -1208,5 +509,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-1
+0
 @#$#@#$#@

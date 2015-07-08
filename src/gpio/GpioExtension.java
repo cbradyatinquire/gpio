@@ -53,6 +53,7 @@ public class GpioExtension extends DefaultClassManager {
 	static final HashMap<String, HashMap<String, String>> legalModes = new HashMap<String, HashMap<String, String>>();
 	static final HashMap<String, String> pinStates = new HashMap<String,String>();
 	
+	static HashMap<Integer, PortWatcher> portWatcherMap = new HashMap<Integer, PortWatcher>();
 	static {
 		//Digital Pins
 		for (String pinName : availableDigiPins ) {
@@ -67,7 +68,7 @@ public class GpioExtension extends DefaultClassManager {
 		for (String pwmName : availablePWMs ) {
 			HashMap<String, String> modesHere  = legalModes.get(pwmName);
 			if (modesHere != null ) {
-				if( pwmName.equalsIgnoreCase("gpio5") || pwmName.equalsIgnoreCase("gpio6") ) {
+				if( pwmName.equalsIgnoreCase("gpio3") || pwmName.equalsIgnoreCase("gpio5") || pwmName.equalsIgnoreCase("gpio6") || pwmName.equalsIgnoreCase("gpio9") || pwmName.equalsIgnoreCase("gpio10") || pwmName.equalsIgnoreCase("gpio11")  ) {
 					modesHere.put("pwm", "2");
 				} else {
 					modesHere.put("pwm", "1");  //right now, the PWM functionality on 3,9,10,11 not working.
@@ -75,12 +76,12 @@ public class GpioExtension extends DefaultClassManager {
 			}
 			legalModes.put(pwmName, modesHere);
 		}
-		maxLevels.put("pwm3",32);
+		maxLevels.put("pwm3",128);
 		maxLevels.put("pwm5",255);
-		maxLevels.put("pwm6",16);
-		maxLevels.put("pwm9",32);
-		maxLevels.put("pwm10",32);
-		maxLevels.put("pwm11",32);
+		maxLevels.put("pwm6",255);
+		maxLevels.put("pwm9",128);
+		maxLevels.put("pwm10",128);
+		maxLevels.put("pwm11",128);
 		
 		maxFrequencies.put("pwm3",8192);
 		maxFrequencies.put("pwm5",66700);
@@ -101,6 +102,8 @@ public class GpioExtension extends DefaultClassManager {
 		for (String analog: availableAnalogs) {
 			legalAnalogs.add(analog);
 		}
+		
+		
 		
 	}
 	
@@ -161,6 +164,107 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		
 		pm.addPrimitive("all-info", new GetAllPinInfo() );		
 		pm.addPrimitive("tone", new Tone() );
+		
+		pm.addPrimitive("watch-port", new WatchPort() );
+		pm.addPrimitive("port-change-count", new ReadChangeCount() );
+		pm.addPrimitive("reset-port-change-count", new ResetChangeCount() );
+		pm.addPrimitive("unwatch-port", new UnwatchPort() );
+		pm.addPrimitive("unwatch-all-ports", new UnwatchAllPorts() );
+	}
+	
+	public static class UnwatchAllPorts extends DefaultCommand {
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			for (Integer i: portWatcherMap.keySet() ) {
+				PortWatcher pw = portWatcherMap.get(i);
+				pw.terminate();
+			}
+			portWatcherMap.clear();
+		}	
+	}
+	
+	public static class UnwatchPort extends DefaultCommand {
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType() });
+		}
+		
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			int pinNum = args[0].getIntValue();
+			Integer pinID = new Integer(pinNum);
+			PortWatcher pw = portWatcherMap.get(pinID);
+			if (pw == null) {
+				throw new ExtensionException("Port " + pinNum + " is not being watched");
+			} else {
+				pw.terminate();
+				portWatcherMap.remove(pinID);
+			}
+		}
+	}
+	
+	public static class WatchPort extends DefaultCommand {
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType(), Syntax.NumberType() });
+		}
+		
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			int pinNum = args[0].getIntValue();
+			int delay = args[1].getIntValue();
+			PortWatcher portWatcher = new PortWatcher(pinDir, pinNum, delay);
+			portWatcherMap.put(new Integer(pinNum), portWatcher);
+			portWatcher.start();
+		}
+		
+	}
+	
+	public static class ReadChangeCount extends DefaultReporter {
+
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.reporterSyntax(new int[] { Syntax.NumberType() }, Syntax.ListType() );
+		}
+		@Override
+		public Object report(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			Integer port = args[0].getIntValue();
+			PortWatcher pw = portWatcherMap.get(port);
+			if (pw == null) {
+				throw new ExtensionException("Port " + port + " is not being watched");
+			} else {
+				return pw.getPortData();
+			}
+		}
+		
+	}
+	
+	public static class ResetChangeCount extends DefaultCommand {
+
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.commandSyntax(new int[] { Syntax.NumberType() });
+		}
+		
+		@Override
+		public void perform(Argument[] args, Context ctxt)
+				throws ExtensionException {
+			
+			Integer port = args[0].getIntValue();
+			PortWatcher pw = portWatcherMap.get(port);
+			if (pw == null) {
+				throw new ExtensionException("Port " + port + " is not being watched");
+			} else {
+				pw.resetCounter();
+			} 
+		}
 		
 	}
 
@@ -423,7 +527,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		}
 	}
 	
-	private static double getDigitalValue(String pin) throws ExtensionException {
+	static double getDigitalValue(String pin) throws ExtensionException {
 		Double toreturn = -1.0;
 		String contents = "";
 		if ( legalDigitals.contains(pin) )
@@ -480,7 +584,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 	
 	public static int getPWMValueForPercent( int num, String pin  ) throws ExtensionException {
 		int max = maxLevels.get(pin);
-		if (num > 100) {num = 100;}
+		//if (num > 100) {num = 100;}
 		if (num < 0) { num = 0; }
 		double percent = ((double)num) / 100.0;
 		double value = percent * ((double)max);
