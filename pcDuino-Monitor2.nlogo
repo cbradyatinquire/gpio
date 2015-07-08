@@ -618,7 +618,11 @@ pwm-level
 pwm-level
 0
 100
+<<<<<<< HEAD
+62
+=======
 60
+>>>>>>> b1a3abb5d8c61a2b73374e906624ef6ad96d31bc
 1
 1
 percent
@@ -732,7 +736,11 @@ CHOOSER
 which-pwm
 which-pwm
 3 5 6 9 10 11
+<<<<<<< HEAD
+1
+=======
 4
+>>>>>>> b1a3abb5d8c61a2b73374e906624ef6ad96d31bc
 
 BUTTON
 900
