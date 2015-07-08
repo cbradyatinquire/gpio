@@ -1,3 +1,5 @@
+extensions [ gpio ]
+
 globals [ mouse-was-down analog-reading-patches analogs digital-reading-patches digitals digital-mode-patches digital-modes 
   opwm3 opwm5 opwm6 opwm9 opwm10 opwm11 pwm-pin-nums pwm-reading-patches pwm-mode-patches ] 
 
@@ -105,7 +107,7 @@ to setup-analogs
   [
     ask patch (xleft + xd * pnum) yv [ 
       set pin-id (word "A" pnum " ")
-      set pcolor sky
+      set pcolor sky - 1
       set plabel pin-id
       set analog-reading-patches lput (patch-at 0 1) analog-reading-patches
     ]
@@ -196,20 +198,22 @@ to check-mouse
         if member? clicked-patch digital-mode-patches
         [
           ask clicked-patch [ 
-            ifelse plabel = "WRITE" [ set plabel "READ" ] [set plabel "WRITE" ] 
-            set digital-modes replace-item (pin-num) (digital-modes) plabel
-            if item pin-num digitals > 1 [ set digitals replace-item pin-num digitals 0 ]
+            let current-mode item pin-num digital-modes
+            let new-mode ""
+            ifelse current-mode = "WRITE" [ set new-mode "READ" ] [set new-mode "WRITE" ]
+            set-mode pin-num new-mode
           ]
           
         ]
         if member? clicked-patch digital-reading-patches
         [
           ask clicked-patch [ 
-            let mode-patch patch-at 0 -2
-            if [plabel] of mode-patch = "WRITE"
+            if item pin-num digital-modes = "WRITE"
             [
-              ifelse read-from-string plabel = 0 [ set plabel 1 ] [ set plabel 0 ] 
-              set digitals replace-item pin-num digitals plabel
+              let current-val item pin-num digitals
+              let new-value 0
+              ifelse current-val = 0 [ set new-value 1 ] [ set new-value 0 ] 
+              digital-write pin-num new-value
             ]
           ]
         ]
@@ -220,17 +224,36 @@ to check-mouse
    set mouse-was-down false 
   ]
 end
+
+;;
+;;
+
+to set-mode [ pin mode ]
+  gpio:set-mode pin mode
+  set digital-modes replace-item pin digital-modes mode
+  if mode = "WRITE"
+  [
+    digital-write pin 0
+  ]
+end
+
+to digital-write [ pin zero-one ]
+  let word-version "LOW"
+  if zero-one = 1 [ set word-version "HIGH" ]
+  gpio:digital-write pin word-version
+  set digitals replace-item pin digitals zero-one
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 11
 10
-957
-401
+879
+371
 19
 7
-24.0
+22.0
 1
-11
+10
 1
 1
 1
@@ -249,10 +272,10 @@ ticks
 30.0
 
 BUTTON
-310
-175
-516
-251
+315
+160
+521
+236
 UPDATE
 update
 T
@@ -266,10 +289,10 @@ NIL
 0
 
 SLIDER
-180
-405
-213
-517
+165
+375
+198
+487
 pwm-level3
 pwm-level3
 0
@@ -281,10 +304,10 @@ NIL
 VERTICAL
 
 SLIDER
-275
-405
-308
-517
+250
+375
+283
+487
 pwm-level5
 pwm-level5
 0
@@ -296,10 +319,10 @@ NIL
 VERTICAL
 
 SLIDER
-325
-405
-358
-517
+295
+375
+328
+487
 pwm-level6
 pwm-level6
 0
@@ -311,12 +334,27 @@ NIL
 VERTICAL
 
 SLIDER
-515
-405
-548
-517
+475
+375
+508
+487
 pwm-level9
 pwm-level9
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+520
+375
+553
+487
+pwm-level10
+pwm-level10
 0
 100
 50
@@ -327,24 +365,9 @@ VERTICAL
 
 SLIDER
 565
-405
+375
 598
-517
-pwm-level10
-pwm-level10
-0
-100
-50
-1
-1
-NIL
-VERTICAL
-
-SLIDER
-615
-405
-648
-517
+487
 pwm-level11
 pwm-level11
 0
