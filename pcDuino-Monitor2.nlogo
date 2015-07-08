@@ -602,7 +602,7 @@ pwm-level
 pwm-level
 0
 100
-82
+62
 1
 1
 percent
@@ -716,7 +716,7 @@ CHOOSER
 which-pwm
 which-pwm
 3 5 6 9 10 11
-3
+1
 
 BUTTON
 900
