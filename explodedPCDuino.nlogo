@@ -163,7 +163,7 @@ to update
    ask item i analog-reading-patches [ set plabel (word item i analogs) ] 
    set i i + 1
   ]
-  
+  check-mouse
   set i 0
   while [ i < length digitals ]
   [
@@ -171,15 +171,13 @@ to update
    ask item i digital-mode-patches [ set plabel (word item i digital-modes) ]
    set i i + 1 
   ]
-  
+  check-mouse
   foreach pwm-pin-nums
   [
     let cval runresult (word "pwm-level" ?)
     if cval != runresult (word "opwm" ?)
     [
-     set digitals replace-item ? digitals cval
-     set digital-modes replace-item ? digital-modes "PWM"
-     run (word "set opwm" ? " " cval) 
+      pwm-set-level ? cval 
     ]
   ]
   check-mouse
@@ -242,6 +240,13 @@ to digital-write [ pin zero-one ]
   if zero-one = 1 [ set word-version "HIGH" ]
   gpio:digital-write pin word-version
   set digitals replace-item pin digitals zero-one
+end
+
+to pwm-set-level [ pin level ]
+  set digitals replace-item pin digitals level
+  set digital-modes replace-item pin digital-modes "PWM"
+  run (word "set opwm" pin " " level)
+  show gpio:pwm-set-level pin level
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -372,7 +377,7 @@ pwm-level11
 pwm-level11
 0
 100
-50
+31
 1
 1
 NIL
@@ -721,7 +726,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
