@@ -12,8 +12,8 @@ end
 to setup
   ca
   set mouse-was-down false
-  set analogs n-values 6 [ random 100 ]
-  set digitals n-values 14 [ random 2 ]
+  set analogs n-values 6 [ 0]
+  set digitals n-values 14 [ 0 ]
   set digital-modes n-values 14 [ "READ" ]
   
   ask patches [ set pin-id "" set pin-num -1 ]
@@ -105,7 +105,7 @@ to setup-analogs
   let xd 2
   while [ pnum < 6 ]
   [
-    ask patch (xleft + xd * pnum) yv [ 
+    ask patch (xleft + xd * (5 - pnum)) yv [ 
       set pin-id (word "A" pnum " ")
       set pcolor sky - 1
       set plabel pin-id
@@ -157,21 +157,24 @@ end
 
 
 to update
+  set analogs item 1 gpio:all-info
   let i 0
   while [ i < length analogs ]
   [
    ask item i analog-reading-patches [ set plabel (word item i analogs) ] 
    set i i + 1
+   check-mouse
   ]
-  check-mouse
+  
   set i 0
   while [ i < length digitals ]
   [
    ask item i digital-reading-patches [ set plabel (word item i digitals) ]
    ask item i digital-mode-patches [ set plabel (word item i digital-modes) ]
    set i i + 1 
+   check-mouse
   ]
-  check-mouse
+  
   foreach pwm-pin-nums
   [
     let cval runresult (word "pwm-level" ?)
@@ -227,11 +230,12 @@ end
 ;;
 
 to set-mode [ pin mode ]
+  if (item pin digital-modes = "PWM") [ show gpio:pwm-rest pin set digitals replace-item pin digitals 0 ]
   gpio:set-mode pin mode
   set digital-modes replace-item pin digital-modes mode
   if mode = "WRITE"
   [
-    digital-write pin 0
+   digital-write pin 0
   ]
 end
 
@@ -347,7 +351,7 @@ pwm-level9
 pwm-level9
 0
 100
-50
+78
 1
 1
 NIL
