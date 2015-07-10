@@ -182,8 +182,9 @@ to update
     [
       pwm-set-level ? cval 
     ]
+    check-mouse
   ]
-  check-mouse
+  
 end
 
 
@@ -366,7 +367,7 @@ pwm-level10
 pwm-level10
 0
 100
-50
+3
 1
 1
 NIL
