@@ -9,11 +9,11 @@ end
 to setup 
   ca
   if (reset-hubnet) [ do-hubnet-reset ] 
-  gpio:set-mode "gpio7" "WRITE"
+  gpio:set-mode 7 "WRITE"
   let i 2
   while [ i <= 12 ]
   [
-  gpio:set-mode (word "gpio" i) "WRITE"
+  gpio:set-mode i "WRITE"
   set i i + 2
   ]
   ask patches with [ pxcor < 0 ] [ set pcolor red - 3 ]
@@ -31,7 +31,7 @@ to execute-votes [vote-left vote-right]
     let towrite "LOW"
     if  item (-1 + i / 2) vlist = 1 [ set towrite "HIGH" ]
     
-    gpio:digital-write (word "gpio" i) towrite
+    gpio:digital-write i towrite
     ;show (word "gpio:digital-write " (word "gpio" i) towrite)
     set i i + 2
   ]
@@ -63,11 +63,11 @@ end
 
 
 to kill
-  gpio:digital-write "gpio7" "LOW" 
+  gpio:digital-write 7 "LOW" 
 end
 
 to unkill
-  gpio:digital-write "gpio7" "HIGH"   
+  gpio:digital-write 7 "HIGH"   
 end
 
 
@@ -127,9 +127,9 @@ ticks
 
 SLIDER
 19
-122
+131
 191
-155
+164
 vote-right
 vote-right
 -3
@@ -141,10 +141,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-22
-167
-199
-200
+16
+176
+192
+209
 CONTROL ROBOT
 display-votes vote-left vote-right\nexecute-votes vote-left vote-right\n
 NIL
@@ -176,9 +176,9 @@ NIL
 
 SLIDER
 18
-83
+92
 190
-116
+125
 vote-left
 vote-left
 -3
@@ -191,9 +191,9 @@ HORIZONTAL
 
 BUTTON
 16
-218
+227
 96
-251
+260
 STOP!!
 kill
 NIL
@@ -208,9 +208,9 @@ NIL
 
 BUTTON
 104
-217
+226
 190
-250
+259
 GO
 display-votes vote-left vote-right\nexecute-votes vote-left vote-right\nunkill
 NIL
@@ -225,9 +225,9 @@ NIL
 
 BUTTON
 24
-272
+281
 190
-305
+314
 Control via HubNet
 every .5\n[ hubnet-control ]
 T
@@ -242,20 +242,20 @@ NIL
 
 SWITCH
 55
-43
+52
 188
-73
+85
 reset-hubnet
 reset-hubnet
-0
+1
 1
 -1000
 
 SLIDER
 20
-309
+318
 192
-342
+351
 sensitivity
 sensitivity
 1
