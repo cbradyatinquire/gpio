@@ -165,6 +165,7 @@ end
 
 to update
   set analogs item 1 gpio:all-info
+  let from-pins-digitals item 0 gpio:all-info
   let i 0
   while [ i < length analogs ]
   [
@@ -176,10 +177,14 @@ to update
   set i 0
   while [ i < length digitals ]
   [
-   ask item i digital-reading-patches [ set plabel (word item i digitals) ]
-   ask item i digital-mode-patches [ set plabel (word item i digital-modes) ]
-   set i i + 1 
-   check-mouse
+    let themode item i digital-modes
+    if (themode = "READ") [
+      set digitals replace-item i digitals (item i from-pins-digitals)
+    ] 
+    ask item i digital-reading-patches [ set plabel (word item i digitals) ]
+    ask item i digital-mode-patches [ set plabel (word themode) ]
+    set i i + 1 
+    check-mouse
   ]
   
   foreach pwm-pin-nums
@@ -331,7 +336,7 @@ pwm-level3
 pwm-level3
 0
 100
-50
+51
 1
 1
 NIL
@@ -361,7 +366,7 @@ pwm-level6
 pwm-level6
 0
 100
-50
+48
 1
 1
 NIL
@@ -421,7 +426,7 @@ frequency5
 frequency5
 150
 1500
-195
+807
 1
 1
 NIL
@@ -436,7 +441,7 @@ frequency6
 frequency6
 150
 1500
-195
+197
 1
 1
 NIL
@@ -795,7 +800,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
