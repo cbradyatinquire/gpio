@@ -18,7 +18,7 @@ to setup
   set digital-modes n-values 14 [ "READ" ]
   
   ask patches [ set pin-id "" set pin-num -1 ]
-  ask patches with [ pycor < -7 ] [ set pcolor 1.1 ]
+  ask patches with [ pycor < -6 ] [ set pcolor 1.1 ]
   setup-digitals
   setup-analogs  
   setup-pwms  
@@ -324,7 +324,7 @@ NIL
 
 SLIDER
 165
-365
+345
 198
 475
 pwm-level3
@@ -339,7 +339,7 @@ VERTICAL
 
 SLIDER
 250
-365
+345
 283
 475
 pwm-level5
@@ -354,7 +354,7 @@ VERTICAL
 
 SLIDER
 300
-365
+345
 333
 475
 pwm-level6
@@ -369,7 +369,7 @@ VERTICAL
 
 SLIDER
 470
-365
+345
 503
 475
 pwm-level9
@@ -384,7 +384,7 @@ VERTICAL
 
 SLIDER
 515
-365
+345
 548
 475
 pwm-level10
@@ -399,7 +399,7 @@ VERTICAL
 
 SLIDER
 560
-365
+345
 593
 475
 pwm-level11
@@ -416,7 +416,7 @@ SLIDER
 672
 165
 872
-196
+198
 frequency5
 frequency5
 150
@@ -431,7 +431,7 @@ SLIDER
 672
 210
 872
-241
+243
 frequency6
 frequency6
 150
