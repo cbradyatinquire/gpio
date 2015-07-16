@@ -1,7 +1,8 @@
 extensions [ gpio ]
 
 globals [ mouse-was-down analog-reading-patches analogs digital-reading-patches digitals digital-mode-patches digital-modes 
-  opwm3 opwm5 opwm6 opwm9 opwm10 opwm11 pwm-pin-nums pwm-reading-patches pwm-mode-patches ] 
+  opwm3 opwm5 opwm6 opwm9 opwm10 opwm11 ofreq3 ofreq5 ofreq6 ofreq9 ofreq10 ofreq11 
+  pwm-pin-nums pwm-reading-patches pwm-mode-patches ] 
 
 patches-own [ pin-id pin-num]
 
@@ -17,6 +18,7 @@ to setup
   set digital-modes n-values 14 [ "READ" ]
   
   ask patches [ set pin-id "" set pin-num -1 ]
+  ask patches with [ pycor < -7 ] [ set pcolor 1.1 ]
   setup-digitals
   setup-analogs  
   setup-pwms  
@@ -33,6 +35,13 @@ to setup-pwms
   set opwm9 pwm-level9
   set opwm10 pwm-level10
   set opwm11 pwm-level11
+  set ofreq3 frequency3
+  set ofreq5 frequency5
+  set ofreq6 frequency6
+  set ofreq9 frequency9
+  set ofreq10 frequency10
+  set ofreq11 frequency11
+  
   foreach pwm-pin-nums [
     set pwm-reading-patches lput item ? digital-reading-patches pwm-reading-patches
     set pwm-mode-patches lput item ? digital-mode-patches pwm-mode-patches
@@ -185,6 +194,16 @@ to update
     check-mouse
   ]
   
+  foreach pwm-pin-nums
+  [
+    let fval runresult (word "frequency" ?)
+    if fval != runresult (word "ofreq" ?)
+    [
+      pwm-tone ? fval runresult (word "pwm-level" ?)
+    ]
+    check-mouse
+  ]
+  
 end
 
 
@@ -253,14 +272,21 @@ to pwm-set-level [ pin level ]
   run (word "set opwm" pin " " level)
   show gpio:pwm-set-level pin level
 end
+
+to pwm-tone [ pin frequency level ]
+  set digitals replace-item pin digitals level
+  set digital-modes replace-item pin digital-modes "PWM"
+  run (word "set ofreq" pin " " frequency)
+  show gpio:tone pin frequency level
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-11
 10
-879
-371
+10
+878
+481
 19
-7
+-1
 22.0
 1
 10
@@ -273,7 +299,7 @@ GRAPHICS-WINDOW
 1
 -19
 19
--7
+-12
 7
 0
 0
@@ -300,9 +326,9 @@ NIL
 
 SLIDER
 165
-375
+365
 198
-487
+475
 pwm-level3
 pwm-level3
 0
@@ -315,78 +341,178 @@ VERTICAL
 
 SLIDER
 250
-375
+365
 283
-487
-pwm-level5
-pwm-level5
-0
-100
-50
-1
-1
-NIL
-VERTICAL
-
-SLIDER
-295
-375
-328
-487
-pwm-level6
-pwm-level6
-0
-100
-50
-1
-1
-NIL
-VERTICAL
-
-SLIDER
 475
-375
-508
-487
-pwm-level9
-pwm-level9
+pwm-level5
+pwm-level5
 0
 100
-78
+50
 1
 1
 NIL
 VERTICAL
 
 SLIDER
-520
-375
-553
-487
-pwm-level10
-pwm-level10
+300
+365
+333
+475
+pwm-level6
+pwm-level6
 0
 100
-3
+50
 1
 1
 NIL
 VERTICAL
 
 SLIDER
-565
-375
-598
-487
-pwm-level11
-pwm-level11
+470
+365
+503
+475
+pwm-level9
+pwm-level9
 0
 100
-31
+50
 1
 1
 NIL
 VERTICAL
+
+SLIDER
+515
+365
+548
+475
+pwm-level10
+pwm-level10
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+560
+365
+593
+475
+pwm-level11
+pwm-level11
+0
+100
+50
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+645
+140
+678
+252
+frequency3
+frequency3
+150
+1500
+195
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+690
+140
+723
+252
+frequency5
+frequency5
+150
+1500
+195
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+725
+140
+758
+252
+frequency6
+frequency6
+150
+1500
+195
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+770
+140
+803
+252
+frequency9
+frequency9
+150
+1500
+195
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+805
+140
+838
+252
+frequency10
+frequency10
+150
+1500
+195
+1
+1
+NIL
+VERTICAL
+
+SLIDER
+840
+140
+873
+252
+frequency11
+frequency11
+150
+1500
+195
+1
+1
+NIL
+VERTICAL
+
+TEXTBOX
+730
+105
+815
+123
+For Tones:
+14
+139.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -731,7 +857,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -300,7 +300,7 @@ to right-wheel-forward [ speed ]
     repeat speed
     [
       forward .01
-      right .1 
+      right .25
     ]
   ]
   [
@@ -316,7 +316,7 @@ to right-wheel-backward [ speed ]
   [
     repeat speed [
       bk .01
-      left .1 
+      left .25
     ]
   ]
   [
@@ -332,7 +332,7 @@ to left-wheel-forward [ speed ]
   [
     repeat speed [
       forward .01
-      left .1 
+      left .25 
     ]
   ]
   [
@@ -348,7 +348,7 @@ to left-wheel-backward [ speed ]
   [
     repeat speed [
       back .01
-      right .1
+      right .25
     ]
   ]
   [
