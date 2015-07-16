@@ -18,10 +18,12 @@ to setup
   set digital-modes n-values 14 [ "READ" ]
   
   ask patches [ set pin-id "" set pin-num -1 ]
-  ask patches with [ pycor < -6 ] [ set pcolor 1.1 ]
+  ask patches with [ pycor < -6 ] [ set pcolor orange - 3 ]
   setup-digitals
   setup-analogs  
   setup-pwms  
+  foreach digital-mode-patches  [ask ? [ set pcolor 1.5 ]]
+  foreach digital-reading-patches [ask ? [ set pcolor 1.5 ]] 
   reset-ticks
 end
 
@@ -164,8 +166,10 @@ end
 
 
 to update
-  set analogs item 1 gpio:all-info
-  let from-pins-digitals item 0 gpio:all-info
+  let vals gpio:all-info
+  set analogs item 1 vals
+  let from-pins-digitals item 0 vals
+  check-mouse
   let i 0
   while [ i < length analogs ]
   [
@@ -226,6 +230,7 @@ to check-mouse
             let new-mode ""
             ifelse current-mode = "WRITE" [ set new-mode "READ" ] [set new-mode "WRITE" ]
             set-mode pin-num new-mode
+            display
           ]
           
         ]
@@ -238,6 +243,7 @@ to check-mouse
               let new-value 0
               ifelse current-val = 0 [ set new-value 1 ] [ set new-value 0 ] 
               digital-write pin-num new-value
+              display
             ]
           ]
         ]
@@ -292,7 +298,7 @@ GRAPHICS-WINDOW
 -1
 22.0
 1
-10
+9
 1
 1
 1
@@ -426,7 +432,7 @@ frequency5
 frequency5
 150
 1500
-807
+587
 1
 1
 NIL
@@ -441,7 +447,7 @@ frequency6
 frequency6
 150
 1500
-197
+198
 1
 1
 NIL
@@ -455,6 +461,40 @@ TEXTBOX
 For Tones, use pins 5 and 6
 14
 139.0
+1
+
+BUTTON
+597
+165
+672
+198
+Tone 5 Off
+let v gpio:pwm-rest 5
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+597
+210
+672
+243
+Tone 6 Off
+let w gpio:pwm-rest 6
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 @#$#@#$#@
