@@ -59,7 +59,8 @@ to setup-digitals
   [
     ask patch (xleft + xd * pnum) yv [ 
       set pin-id (word "D" pnum " ")
-      set pcolor blue
+      set pcolor yellow
+      set plabel-color black
       set plabel pin-id
       let reading-patch (patch-at 0 1)
       let mode-patch (patch-at 0 -1)
@@ -75,7 +76,8 @@ to setup-digitals
   [
      ask patch (xleft + xd * pnum) yv [ 
       set pin-id (word "D" pnum " ")
-      set pcolor blue
+      set pcolor yellow
+      set plabel-color black
       set plabel pin-id
       let reading-patch (patch-at 0 1)
       let mode-patch (patch-at 0 -1)
@@ -90,7 +92,8 @@ to setup-digitals
    ;;ground
    ask patch (xleft + xd * pnum) yv [ 
       set pin-id (word "GND")
-      set pcolor violet
+      set pcolor green
+      set plabel-color black
       set plabel pin-id
     ]
   
@@ -134,7 +137,8 @@ to setup-analogs
   repeat 2 [
     ask patch (xleft + xd * pnum) yv [ 
       set pin-id (word "GND" )
-      set pcolor violet
+      set pcolor green
+      set plabel-color black
       set plabel pin-id
     ]
     set pnum pnum + 1
@@ -372,7 +376,7 @@ pwm-level6
 pwm-level6
 0
 100
-48
+50
 1
 1
 NIL
@@ -432,7 +436,7 @@ frequency5
 frequency5
 150
 1500
-587
+195
 1
 1
 NIL
@@ -447,7 +451,7 @@ frequency6
 frequency6
 150
 1500
-198
+195
 1
 1
 NIL
