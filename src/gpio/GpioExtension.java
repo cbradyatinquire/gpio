@@ -434,7 +434,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					littleb.add( getDigitalValue(pinName) );
 				} else {
 					if (mode < 1.5)
-						littleb.add("WRITE" );
+						littleb.add( getDigitalValue(pinName) );
 					else 
 						littleb.add("PWM");
 				}
