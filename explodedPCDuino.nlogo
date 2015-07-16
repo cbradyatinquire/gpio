@@ -1,7 +1,7 @@
 extensions [ gpio ]
 
 globals [ mouse-was-down analog-reading-patches analogs digital-reading-patches digitals digital-mode-patches digital-modes 
-  opwm3 opwm5 opwm6 opwm9 opwm10 opwm11 ofreq3 ofreq5 ofreq6 ofreq9 ofreq10 ofreq11 
+  opwm3 opwm5 opwm6 opwm9 opwm10 opwm11  ofreq5 ofreq6  freq-pin-nums 
   pwm-pin-nums pwm-reading-patches pwm-mode-patches ] 
 
 patches-own [ pin-id pin-num]
@@ -27,6 +27,7 @@ end
 
 to setup-pwms
   set pwm-pin-nums [ 3 5 6 9 10 11 ]
+  set freq-pin-nums [ 5 6 ]
   set pwm-reading-patches []
   set pwm-mode-patches []
   set opwm3 pwm-level3
@@ -35,12 +36,9 @@ to setup-pwms
   set opwm9 pwm-level9
   set opwm10 pwm-level10
   set opwm11 pwm-level11
-  set ofreq3 frequency3
+
   set ofreq5 frequency5
   set ofreq6 frequency6
-  set ofreq9 frequency9
-  set ofreq10 frequency10
-  set ofreq11 frequency11
   
   foreach pwm-pin-nums [
     set pwm-reading-patches lput item ? digital-reading-patches pwm-reading-patches
@@ -194,12 +192,12 @@ to update
     check-mouse
   ]
   
-  foreach pwm-pin-nums
+  foreach freq-pin-nums
   [
     let fval runresult (word "frequency" ?)
     if fval != runresult (word "ofreq" ?)
     [
-      pwm-tone ? fval runresult (word "pwm-level" ?)
+      make-tone ? fval runresult (word "pwm-level" ?)
     ]
     check-mouse
   ]
@@ -273,7 +271,7 @@ to pwm-set-level [ pin level ]
   show gpio:pwm-set-level pin level
 end
 
-to pwm-tone [ pin frequency level ]
+to make-tone [ pin frequency level ]
   set digitals replace-item pin digitals level
   set digital-modes replace-item pin digital-modes "PWM"
   run (word "set ofreq" pin " " frequency)
@@ -415,25 +413,10 @@ NIL
 VERTICAL
 
 SLIDER
-645
-140
-678
-252
-frequency3
-frequency3
-150
-1500
-195
-1
-1
-NIL
-VERTICAL
-
-SLIDER
-690
-140
-723
-252
+672
+165
+872
+196
 frequency5
 frequency5
 150
@@ -442,13 +425,13 @@ frequency5
 1
 1
 NIL
-VERTICAL
+HORIZONTAL
 
 SLIDER
-725
-140
-758
-252
+672
+210
+872
+241
 frequency6
 frequency6
 150
@@ -457,59 +440,14 @@ frequency6
 1
 1
 NIL
-VERTICAL
-
-SLIDER
-770
-140
-803
-252
-frequency9
-frequency9
-150
-1500
-195
-1
-1
-NIL
-VERTICAL
-
-SLIDER
-805
-140
-838
-252
-frequency10
-frequency10
-150
-1500
-195
-1
-1
-NIL
-VERTICAL
-
-SLIDER
-840
-140
-873
-252
-frequency11
-frequency11
-150
-1500
-195
-1
-1
-NIL
-VERTICAL
+HORIZONTAL
 
 TEXTBOX
-730
-105
-815
-123
-For Tones:
+675
+135
+870
+153
+For Tones, use pins 5 and 6
 14
 139.0
 1
