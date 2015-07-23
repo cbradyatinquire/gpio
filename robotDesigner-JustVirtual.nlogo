@@ -242,7 +242,7 @@ to right-wheel-forward [ speed ]
     repeat speed
     [
       forward .01
-      right .25 
+      left .25 
     ]
   ]
   [
@@ -255,7 +255,7 @@ to right-wheel-backward [ speed ]
   [
     repeat speed [
       bk .01
-      left .25 
+      right .25 
     ]
   ]
   [
@@ -268,7 +268,7 @@ to left-wheel-forward [ speed ]
   [
     repeat speed [
       forward .01
-      left .25 
+      right .25 
     ]
   ]
   [
@@ -281,7 +281,7 @@ to left-wheel-backward [ speed ]
   [
     repeat speed [
       back .01
-      right .25
+      left .25
     ]
   ]
   [
@@ -728,7 +728,7 @@ INPUTBOX
 540
 486
 when-there-is-no-event
-;right-wheel-forward 1\n;right-wheel-backward <n>\n;left-wheel-forward <n>\n;left-wheel-backward <n> 
+;right-wheel-forward 1\n;right-wheel-backward <n>\n;left-wheel-forward 1\n;left-wheel-backward <n> 
 1
 0
 String (commands)
