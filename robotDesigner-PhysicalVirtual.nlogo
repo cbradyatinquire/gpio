@@ -300,7 +300,7 @@ to right-wheel-forward [ speed ]
     repeat speed
     [
       forward .01
-      right .25
+      left .25  ;;fixes bug found by raymond and devin
     ]
   ]
   [
@@ -316,7 +316,7 @@ to right-wheel-backward [ speed ]
   [
     repeat speed [
       bk .01
-      left .25
+      right .25
     ]
   ]
   [
@@ -332,7 +332,7 @@ to left-wheel-forward [ speed ]
   [
     repeat speed [
       forward .01
-      left .25 
+      right .25 
     ]
   ]
   [
@@ -348,7 +348,7 @@ to left-wheel-backward [ speed ]
   [
     repeat speed [
       back .01
-      right .25
+      left .25
     ]
   ]
   [
@@ -917,6 +917,16 @@ gpio:digital-read bump-sensor-RIGHT
 0
 1
 13
+
+TEXTBOX
+30
+508
+385
+582
+From Code:  (see setup-gpio-pins; change there if necessary)\n  set right-forward-pin 8\n  set right-back-pin 11\n  set left-forward-pin 12\n  set left-back-pin 13
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
