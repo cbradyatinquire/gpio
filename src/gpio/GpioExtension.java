@@ -469,13 +469,17 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 				double mode = getMode(pinName);
 				if (mode == 0.0) {
 					tinyb.add("READ");
+					tinyb.add( getDigitalValue(pinName) );
 				} else {
-					if (mode < 1.5)
-						littleb.add("WRITE" );
-					else 
-						littleb.add("PWM");
+					if (mode < 1.5) {
+						tinyb.add("WRITE" );
+						tinyb.add( getDigitalValue(pinName) );
+					}
+					else {
+						tinyb.add("PWM");
+						tinyb.add( -1 );
+					}
 				}
-				tinyb.add( getDigitalValue(pinName) );
 				littleb.add(tinyb.toLogoList());
 			}
 			llb.add(littleb.toLogoList());
