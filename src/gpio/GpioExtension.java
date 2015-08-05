@@ -163,6 +163,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		//}
 		
 		pm.addPrimitive("all-info", new GetAllPinInfo() );		
+		pm.addPrimitive("verbose", new VerboseInfo() );
 		pm.addPrimitive("tone", new Tone() );
 		
 		pm.addPrimitive("watch-port", new WatchPort() );
@@ -450,6 +451,46 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 
 	}
 	
+	public static class VerboseInfo extends DefaultReporter {
+		@Override
+		public Syntax getSyntax() {
+			return Syntax.reporterSyntax(new int[] { }, Syntax.ListType() );
+		}
+		
+		@Override
+		public Object report(Argument[] arg, Context ctxt)
+		throws ExtensionException, LogoException {
+			LogoListBuilder llb = new LogoListBuilder();
+			LogoListBuilder littleb = new LogoListBuilder();
+			
+			for (String pinName : availableDigiPins ) {
+				LogoListBuilder tinyb = new LogoListBuilder();
+				
+				double mode = getMode(pinName);
+				if (mode == 0.0) {
+					tinyb.add("READ");
+				} else {
+					if (mode < 1.5)
+						littleb.add("WRITE" );
+					else 
+						littleb.add("PWM");
+				}
+				tinyb.add( getDigitalValue(pinName) );
+				littleb.add(tinyb.toLogoList());
+			}
+			llb.add(littleb.toLogoList());
+			
+			LogoListBuilder littleb2 = new LogoListBuilder();
+			for (String aPinName : availableAnalogs ) {
+				littleb2.add( getAnalogValue(aPinName) );
+			}
+			llb.add(littleb2.toLogoList());
+			
+			return llb.toLogoList();
+		}
+
+	}
+	
 	
 	public static class AnalogRead extends DefaultReporter {
 		@Override
@@ -532,9 +573,9 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 		String contents = "";
 		if ( legalDigitals.contains(pin) )
 		{
-			String mode = pinStates.get(pin);
-			if ( mode.equals(READ) )
-			{
+			//String mode = pinStates.get(pin);
+			//if ( mode.equals(READ) )
+		//	{
 					try
 					{
 						File f = new File( pinDir + pin );
@@ -552,11 +593,11 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 						e.printStackTrace();
 						throw new ExtensionException( "An exception occurred in trying to read from pin " + pin + ".");
 					}
-			}
-			else
-			{
-				throw new ExtensionException("Pin " + pin + " is not set to READ mode.");
-			}
+	//		}
+		//	else
+		//	{
+		//		throw new ExtensionException("Pin " + pin + " is not set to READ mode.");
+		//	}
 		}	
 		else
 		{
