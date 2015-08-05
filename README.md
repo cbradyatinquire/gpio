@@ -12,3 +12,7 @@ Make primitives for:
 * [done] analog write (pwm)
 * [done] analog read (a0-a5)
 
+* [done] port-watching (e.g., for wheel encoder on robot)
+* [NOT DONE] pulse-in (e.g., for ultrasonic distance)
+
+
