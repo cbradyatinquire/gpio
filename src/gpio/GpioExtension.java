@@ -480,7 +480,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 						String pwmName = "pwm" + pinName.substring( "gpio".length() - 1 );
 						File flevel = new File( pwmLevel + pwmName );
 						String contents = "";
-						int value = 0;
+						double value = 0;
 						try {
 							FileInputStream levelfis = new FileInputStream( flevel );
 							int contint;
@@ -488,7 +488,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 							{
 								contents += (char)contint;
 							}
-							value = Integer.valueOf(contents);
+							value = Double.valueOf(contents);
 							levelfis.close();
 						} catch (FileNotFoundException e) {
 							// TODO Auto-generated catch block
