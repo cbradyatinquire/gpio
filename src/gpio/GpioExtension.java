@@ -477,7 +477,7 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					}
 					else {
 						tinyb.add("PWM");
-						String pwmName = "pwm" + pinName.substring( "gpio".length() - 1 );
+						String pwmName = "pwm" + pinName.substring( "gpio".length()  );
 						File flevel = new File( pwmLevel + pwmName );
 						String contents = "";
 						double value = 0;
