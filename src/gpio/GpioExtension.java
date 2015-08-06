@@ -493,9 +493,11 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 						} catch (FileNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+							throw new ExtensionException( "FileNotFound.  Pin Name " + pinName + ", and pwmName = " + pwmName);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+							throw new ExtensionException( "IOException.  Pin Name " + pinName + ", and pwmName = " + pwmName);
 						}
 						tinyb.add( value );
 					}
