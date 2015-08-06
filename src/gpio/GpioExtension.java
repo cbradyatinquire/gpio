@@ -477,7 +477,27 @@ NOTE: you can get freq first: cat /sys/devices/virtual/misc/pwmtimer/freq_range/
 					}
 					else {
 						tinyb.add("PWM");
-						tinyb.add( -1 );
+						String pwmName = "pwm" + pinName.substring( "gpio".length() - 1 );
+						File flevel = new File( pwmLevel + pwmName );
+						String contents = "";
+						int value = 0;
+						try {
+							FileInputStream levelfis = new FileInputStream( flevel );
+							int contint;
+							while ((contint = levelfis.read()) != -1)
+							{
+								contents += (char)contint;
+							}
+							value = Integer.valueOf(contents);
+							levelfis.close();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						tinyb.add( value );
 					}
 				}
 				littleb.add(tinyb.toLogoList());
